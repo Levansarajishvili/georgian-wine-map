@@ -377,7 +377,7 @@ URL-ის წესები:
 
 ### იმპლემენტაციისას შესამოწმებელი
 - Netlify/Vercel კუმშავს თუ არა `.geo.json`-ს (ეტაპი 9).
-- `?url` import `.json` გაფართოებაზე hash-იან asset URL-ს აბრუნებს და ფაილს bundle-ში არ რთავს (ეტაპი 5, `dist/`-ის შემოწმებით). **ეტაპ 4-ზე შემოწმდა** სატესტო ფაილით: hash-იანი asset გამოდის და JS bundle-ში არ ხვდება. 4 KB-ზე პატარა ფაილს Vite `data:` URI-დ ჩასვამს (`assetsInlineLimit`); ამჟამინდელი placeholder ასეთია, ნამდვილი გეომეტრია არა. **ეტაპ 5:** `zones.geo.json`-ის placeholder-იც `data:` URI-დ ჩაისვა; ნამდვილი ფაილით `dist/`-ში ხელახლა სანახავია.
+- `?url` import `.json` გაფართოებაზე hash-იან asset URL-ს აბრუნებს და ფაილს bundle-ში არ რთავს (ეტაპი 5, `dist/`-ის შემოწმებით). **ეტაპ 4-ზე შემოწმდა** სატესტო ფაილით: hash-იანი asset გამოდის და JS bundle-ში არ ხვდება. 4 KB-ზე პატარა ფაილს Vite `data:` URI-დ ჩასვამს (`assetsInlineLimit`); ამჟამინდელი placeholder ასეთია, ნამდვილი გეომეტრია არა. **ეტაპ 5:** `zones.geo.json`-ის placeholder-იც `data:` URI-დ ჩაისვა. **2026-11-18, ნამდვილი `regions.geo.json`-ით შემოწმდა:** build-ში გამოდის `dist/assets/regions.geo-<hash>.json` (116.0 KB; Vite-ის ანგარიშით gzip 37.3 KB) და JS bundle-ში არ ხვდება. `zones.geo.json` ნამდვილი ფაილით ისევ სანახავია.
 
 ---
 
