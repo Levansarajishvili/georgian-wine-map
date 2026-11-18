@@ -1,0 +1,18 @@
+[
+  {
+    "id": "kakheti",
+    "name": { "ka": "კახეთი" },
+    "bbox": [0, 0, 0.001, 0.001],
+    "source": "placeholder",
+    "verified": false,
+    "note": "ADM1 source not chosen yet (06-data-sources.md). Slug follows 02 §2."
+  },
+  {
+    "id": "racha-lechkhumi-da-kvemo-svaneti",
+    "name": { "ka": "რაჭა-ლეჩხუმი და ქვემო სვანეთი" },
+    "bbox": [0, 0, 0.001, 0.001],
+    "source": "placeholder",
+    "verified": false,
+    "note": "ADM1 source not chosen yet. Slug is the mechanical 02 §2 result; confirm before publishing."
+  }
+]

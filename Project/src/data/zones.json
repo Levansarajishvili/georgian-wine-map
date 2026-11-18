@@ -1,0 +1,80 @@
+[
+  {
+    "id": "khvanchkara",
+    "name": {"ka": "ხვანჭკარა"},
+    "regions": [
+      {"id": "racha-lechkhumi-da-kvemo-svaneti", "source": "sakpatenti-khvanchkara", "verified": false, "note": "Page says Racha, Ambrolauri district; ADM1 link inferred. Confirm with geometry (02 §9.8)."}
+    ],
+    "grapes": [
+      {"id": "aleksandrouli", "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "mujuretuli", "source": "sakpatenti-khvanchkara", "verified": true}
+    ],
+    "styles": [
+      {"id": "semi-sweet", "source": "sakpatenti-khvanchkara", "verified": true, "note": "Naturally semi-sweet red."}
+    ],
+    "villages": [
+      {"id": "ambrolauri-khvanchkara", "name": {"ka": "ხვანჭკარა"}, "source": "sakpatenti-khvanchkara", "verified": false, "note": "Page sentence lists villages 'near' Khvanchkara; the village itself is implied, not listed."},
+      {"id": "ambrolauri-tsesi", "name": {"ka": "წესი"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-kvatskhuti", "name": {"ka": "კვაცხუთი"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-sadmeli", "name": {"ka": "სადმელი"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-ghviara", "name": {"ka": "ღვიარა"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-bostana", "name": {"ka": "ბოსტანა"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-didi-chorjo", "name": {"ka": "დიდი ჩორჯო"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-patara-chorjo", "name": {"ka": "პატარა ჩორჯო"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-meore-tola", "name": {"ka": "მეორე ტოლა"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-pirveli-tola", "name": {"ka": "პირველი ტოლა"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-chrebalo", "name": {"ka": "ჭრებალო"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-chqvishi", "name": {"ka": "ჭყვიში"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-zhoshkha", "name": {"ka": "ჟოშხა"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-kvishari", "name": {"ka": "ქვიშარი"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-ghvardia", "name": {"ka": "ღვარდია"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-bareuli", "name": {"ka": "ბარეული"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-ghadishi", "name": {"ka": "ღადიში"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-baji", "name": {"ka": "ბაჯი"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-bugeuli", "name": {"ka": "ბუგეული"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-saketsia", "name": {"ka": "საკეცია"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-jvarisa", "name": {"ka": "ჯვარისა"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-itsa", "name": {"ka": "იწა"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-krikhi", "name": {"ka": "კრიხი"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-akhalsopeli", "name": {"ka": "ახალსოფელი"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-gori", "name": {"ka": "გორი"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-khimshi", "name": {"ka": "ხიმში"}, "source": "sakpatenti-khvanchkara", "verified": true},
+      {"id": "ambrolauri-abanoeti", "name": {"ka": "აბანოეთი"}, "source": "sakpatenti-khvanchkara", "verified": true}
+    ],
+    "boundary": {"source": "placeholder", "verified": false},
+    "labelPoint": [0.0005, 0.0005],
+    "bbox": [0, 0, 0.001, 0.001],
+    "source": "sakpatenti-khvanchkara",
+    "verified": true,
+    "note": "Village prefix 'ambrolauri' assumed from 'Ambrolauri district' on the page; check each village. Tsageri villages Alpana and Orbeli ('in some years') are not included: decision pending."
+  },
+  {
+    "id": "napareuli",
+    "name": {"ka": "ნაფარეული"},
+    "regions": [
+      {"id": "kakheti", "source": "vinoge-napareuli", "verified": false}
+    ],
+    "grapes": [
+      {"id": "rkatsiteli", "source": "vinoge-napareuli", "verified": false},
+      {"id": "saperavi", "source": "vinoge-napareuli", "verified": false}
+    ],
+    "styles": [
+      {"id": "dry-red", "source": "vinoge-napareuli", "verified": false, "note": "Saperavi."},
+      {"id": "dry-white", "source": "vinoge-napareuli", "verified": false, "note": "Rkatsiteli."}
+    ],
+    "villages": [
+      {"id": "telavi-napareuli", "name": {"ka": "ნაფარეული"}, "source": "vinoge-napareuli", "verified": false},
+      {"id": "telavi-saniore", "name": {"ka": "სანიორე"}, "source": "vinoge-napareuli", "verified": false},
+      {"id": "telavi-jugaani", "name": {"ka": "ჯუგაანი"}, "source": "vinoge-napareuli", "verified": false, "note": "Other secondary sources spell it ჯუღაანი (slug would be jughaani)."},
+      {"id": "telavi-artana", "name": {"ka": "არტანა"}, "source": "vinoge-napareuli", "verified": false, "note": "Other secondary sources spell it ართანა (slug unchanged: artana)."},
+      {"id": "telavi-pshaveli", "name": {"ka": "ფშაველი"}, "source": "vinoge-napareuli", "verified": false},
+      {"id": "telavi-lalisquri", "name": {"ka": "ლალისყური"}, "source": "vinoge-napareuli", "verified": false}
+    ],
+    "boundary": {"source": "placeholder", "verified": false},
+    "labelPoint": [0.0005, 0.0005],
+    "bbox": [0, 0, 0.001, 0.001],
+    "source": "vinoge-napareuli",
+    "verified": false,
+    "note": "Primary Sakpatenti page for Napareuli not located yet. Village prefix 'telavi' assumed: the source names no municipality."
+  }
+]

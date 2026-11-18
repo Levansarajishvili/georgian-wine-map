@@ -1,0 +1,123 @@
+/* src/styles/global.css
+   Reset, base typography and OpenLayers overrides. Values come from tokens.css.
+   Import order in main.jsx: ol/ol.css → tokens.css → global.css. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-body);
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+/* Two-tone focus ring; the transparent outline keeps focus visible in forced-colours mode. */
+:focus-visible {
+  outline: var(--focus-ring-width) solid transparent;
+  box-shadow: var(--focus-ring);
+}
+
+/* ---------------------------------------------------------------
+ * Map buttons: basemap button (React) and OpenLayers zoom buttons
+ * ------------------------------------------------------------- */
+.map-button,
+.ol-control.ol-zoom button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-control);
+  height: var(--size-control);
+  margin: 0;
+  padding: 0;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-control);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-regular);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.map-button:hover,
+.ol-control.ol-zoom button:hover {
+  background: var(--color-surface-sunken);
+  color: var(--color-text);
+}
+
+/* ol.css draws its own 1px outline on hover and focus. */
+.ol-control.ol-zoom button:hover,
+.ol-control.ol-zoom button:focus {
+  outline: none;
+}
+
+.map-button:focus-visible,
+.ol-control.ol-zoom button:focus-visible {
+  outline: var(--focus-ring-width) solid transparent;
+  box-shadow: var(--focus-ring);
+}
+
+@media (min-width: 48rem), (orientation: landscape) and (max-height: 30rem) {
+  .map-button,
+  .ol-control.ol-zoom button {
+    width: var(--size-control-sm);
+    height: var(--size-control-sm);
+  }
+}
+
+/* ---------------------------------------------------------------
+ * OpenLayers controls. Both are rendered into elements that MapView
+ * positions, so ol.css positioning and chrome are switched off.
+ * ------------------------------------------------------------- */
+.ol-control.ol-zoom {
+  position: static;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-control-gap);
+  background: none;
+  border-radius: 0;
+}
+
+.ol-control.ol-attribution.ol-uncollapsible {
+  position: static;
+  display: block;
+  max-width: 100%;
+  padding: 0 var(--space-2);
+  background: var(--color-surface-overlay);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-ui);
+  text-align: end;
+}
+
+.ol-control.ol-attribution ul {
+  margin: 0;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+  text-shadow: none;
+}
+
+.ol-control.ol-attribution a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.ol-control.ol-attribution a:hover {
+  color: var(--color-text);
+}

@@ -1,0 +1,72 @@
+/* src/App.module.css */
+
+.layout {
+  /* Height of the map covered by the bottom sheet. MapView keeps its controls,
+     attribution and fitted extent above it. A layout variable, not a design
+     token: the sheet will update it when its state changes. */
+  --map-inset-bottom: var(--sheet-height-collapsed);
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+/* Mobile: map and panel share the single cell; the panel overlays the bottom. */
+.map {
+  grid-area: 1 / 1;
+  position: relative;
+  z-index: var(--z-map);
+  min-width: 0;
+  min-height: 0;
+}
+
+.panel {
+  grid-area: 1 / 1;
+  align-self: end;
+  z-index: var(--z-sheet);
+  box-sizing: border-box;
+  height: var(--sheet-height-collapsed);
+  padding: var(--space-3) var(--space-panel-inset);
+  overflow: hidden;
+  background: var(--color-surface);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  box-shadow: var(--shadow-sheet);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-heading);
+}
+
+/* Desktop (--breakpoint-desktop) and landscape phones: two columns. */
+@media (min-width: 48rem), (orientation: landscape) and (max-height: 30rem) {
+  .layout {
+    --map-inset-bottom: 0px;
+    grid-template-columns: var(--panel-width) minmax(0, 1fr);
+  }
+
+  .panel {
+    grid-area: 1 / 1;
+    align-self: stretch;
+    height: auto;
+    padding: var(--space-panel-inset);
+    overflow: auto;
+    border-right: var(--border-width) solid var(--color-border-subtle);
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .map {
+    grid-area: 1 / 2;
+  }
+
+  .title {
+    font-size: var(--font-size-2xl);
+  }
+}

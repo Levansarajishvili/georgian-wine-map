@@ -1,0 +1,9 @@
+node_modules
+dist
+*.local
+*.log
+.DS_Store
+
+# Intermediate data-processing output (01 §2); the folder itself is kept by .gitkeep
+scripts/data/build/*
+!scripts/data/build/.gitkeep

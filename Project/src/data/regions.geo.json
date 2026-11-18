@@ -1,0 +1,27 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "kakheti",
+      "properties": {},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[0, 0], [0.001, 0], [0.001, 0.001], [0, 0.001], [0, 0]]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "racha-lechkhumi-da-kvemo-svaneti",
+      "properties": {},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[0, 0], [0.001, 0], [0.001, 0.001], [0, 0.001], [0, 0]]
+        ]
+      }
+    }
+  ]
+}
