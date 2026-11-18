@@ -1,0 +1,299 @@
+/* src/styles/tokens.css
+ *
+ * Design tokens — Georgian Wine Map v1, visual direction "Field Atlas".
+ * Single source of truth for colour, spacing, radius, shadow, z-index,
+ * motion and typography. Component CSS uses these variables only.
+ *
+ * Light theme only in v1. Names are semantic on purpose: a dark theme later
+ * redefines the same names under a [data-theme="dark"] / prefers-color-scheme
+ * block; no component changes.
+ *
+ * JavaScript contract: every property prefixed --map- plus
+ * --motion-duration-map and --breakpoint-desktop is read at runtime by
+ * src/map/styles/mapTokens.js (getComputedStyle) and handed to OpenLayers.
+ * Map widths and radii are unitless CSS pixels, opacities are 0–1 numbers,
+ * dash arrays are space-separated numbers. Renaming or removing a --map-*
+ * property breaks the map; mapTokens.test.js checks the full list against
+ * this file and against styles.json slugs.
+ *
+ * Contrast figures in comments are measured (WCAG 2.x relative luminance).
+ * Basemap colours used for the map measurements are assumptions until the
+ * real tiles are sampled in stage 5: light basemap #FAFAF8–#E3E3E0,
+ * satellite dark #1E2B1F, green #5A7144, light #C8BFA8.
+ */
+
+:root {
+  /* ---------------------------------------------------------------
+   * Colour — UI surfaces ("map paper", deliberately not cream)
+   * ------------------------------------------------------------- */
+  --color-surface: #EDEEE6;                         /* sheet, side panel, map controls */
+  --color-surface-raised: #F7F8F3;                  /* search field, inputs, chips */
+  --color-surface-sunken: #E2E4D9;                  /* hover rows, pressed controls */
+  --color-surface-overlay: rgb(237 238 230 / 0.92); /* attribution plate, status bar over the map */
+  --color-scrim: rgb(30 42 58 / 0.45);              /* modal backdrop */
+
+  /* ---------------------------------------------------------------
+   * Colour — text
+   * ------------------------------------------------------------- */
+  --color-text: #1E2A3A;           /* ink: 12.4:1 on surface, 11.3:1 on sunken */
+  --color-text-muted: #575E66;     /* 5.6:1 on surface, 5.1:1 on sunken, 4.7:1 on overlay over dark imagery */
+  --color-text-disabled: #7A8077;  /* 3.5:1 on surface; inactive controls are exempt, kept legible anyway */
+  --color-text-on-accent: #FFFFFF; /* 8.6:1 on accent, 10.9:1 on accent-hover */
+
+  /* ---------------------------------------------------------------
+   * Colour — accent (ink blue; outside the wine hue range so a
+   * button is never read as a zone: ΔE2000 ≥ 27 to every zone fill)
+   * ------------------------------------------------------------- */
+  --color-accent: #2B4C7E;         /* 7.4:1 on surface */
+  --color-accent-hover: #223D66;
+  --color-selected-bg: #DDE3EA;    /* selected list row: text 11.2:1, muted 5.1:1 */
+
+  /* ---------------------------------------------------------------
+   * Colour — borders
+   * ------------------------------------------------------------- */
+  --color-border: #7D8278;         /* control boundaries: 3.4:1 on surface, 3.1:1 on sunken */
+  --color-border-subtle: #C9CBC0;  /* decorative dividers only, never a control boundary */
+  --color-border-strong: var(--color-text);
+  --border-width: 1px;
+  --border-width-strong: 2px;
+  --border-neatline: 3px double var(--color-border); /* atlas frame around the zone panel */
+
+  /* ---------------------------------------------------------------
+   * Colour — status
+   * No red anywhere in the UI: red belongs to dry-red zones.
+   * Errors use text colour + icon + border, never a hue.
+   * ------------------------------------------------------------- */
+  --color-status-bg: var(--color-surface-overlay);
+  --color-status-border: var(--color-border);
+  --color-status-text: var(--color-text);
+
+  /* ---------------------------------------------------------------
+   * Focus ring — two-tone so it reads on every basemap.
+   * Accent ring sits against the control (7.4:1 on surface);
+   * white halo outside carries it over dark/green imagery
+   * (14.8:1 / 5.4:1); on light imagery the accent ring itself
+   * gives 4.7:1. global.css also sets a transparent outline so
+   * Windows forced-colours mode still shows focus.
+   * ------------------------------------------------------------- */
+  --color-focus: var(--color-accent);
+  --color-focus-halo: #FFFFFF;
+  --focus-ring-width: 2px;
+  --focus-ring:
+    0 0 0 var(--focus-ring-width) var(--color-focus),
+    0 0 0 calc(var(--focus-ring-width) * 2) var(--color-focus-halo);
+  --focus-ring-inset: /* for the map container (9), which clips outer shadows */
+    inset 0 0 0 var(--focus-ring-width) var(--color-focus),
+    inset 0 0 0 calc(var(--focus-ring-width) * 2) var(--color-focus-halo);
+
+  /* ---------------------------------------------------------------
+   * Spacing — 4px base
+   * ------------------------------------------------------------- */
+  --space-0: 0;
+  --space-1: 0.25rem;  /*  4px */
+  --space-2: 0.5rem;   /*  8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.5rem;   /* 24px */
+  --space-6: 2rem;     /* 32px */
+  --space-7: 3rem;     /* 48px */
+
+  --space-map-edge: var(--space-3);      /* distance of floating controls from the viewport edge */
+  --space-control-gap: var(--space-1);   /* gap inside the zoom/basemap column */
+  --space-panel-inset: var(--space-4);   /* padding inside sheet and side panel */
+
+  /* ---------------------------------------------------------------
+   * Sizes
+   * ------------------------------------------------------------- */
+  --size-target-min: 24px;               /* WCAG 2.5.8 floor, any pointer target */
+  --size-control: 2.75rem;               /* 44px: mobile buttons, search field */
+  --size-control-sm: 2.25rem;            /* 36px: desktop controls, still ≥ 24px */
+  --size-icon: 1.25rem;                  /* 20px */
+  --size-sheet-handle-zone: 2.75rem;     /* draggable header strip, ≥ 44px */
+  --sheet-height-collapsed: 4.5rem;      /* handle + one title line + summary */
+  --sheet-height-half: 50dvh;
+  --sheet-top-offset: calc(var(--size-control) + 2 * var(--space-map-edge)); /* full sheet stops below the top bar */
+  --panel-width: 22.5rem;                /* desktop side panel */
+
+  /* Breakpoints cannot be custom properties inside @media.
+     CSS files repeat these literals; JS (useMediaQuery) reads this token. */
+  --breakpoint-desktop: 48rem;           /* plus landscape phones: (orientation: landscape) and (max-height: 30rem) */
+
+  /* ---------------------------------------------------------------
+   * Radius — atlas: crisp corners, round only where shape means something
+   * ------------------------------------------------------------- */
+  --radius-sm: 2px;      /* buttons, inputs, map controls */
+  --radius-md: 4px;      /* popovers, sheet top corners, panel */
+  --radius-pill: 999px;  /* sheet handle, filter chips, count badge */
+
+  /* ---------------------------------------------------------------
+   * Shadows — ink-tinted and minimal; only floating things get one
+   * ------------------------------------------------------------- */
+  --shadow-control: 0 1px 2px rgb(30 42 58 / 0.20);   /* controls floating over the map */
+  --shadow-popover: 0 4px 12px rgb(30 42 58 / 0.18);  /* legend, basemap switcher */
+  --shadow-sheet: 0 -2px 10px rgb(30 42 58 / 0.16);   /* bottom sheet top edge */
+  --shadow-modal: 0 8px 24px rgb(30 42 58 / 0.24);
+
+  /* ---------------------------------------------------------------
+   * Z-index layers
+   * ------------------------------------------------------------- */
+  --z-map: 0;
+  --z-map-overlay: 10;    /* attribution, scale bar, status bar (T) */
+  --z-map-controls: 20;   /* search bar, filter chips, zoom, basemap, legend button */
+  --z-sheet: 30;          /* bottom sheet / side panel */
+  --z-popover: 40;        /* legend card, basemap popover */
+  --z-search: 50;         /* full-screen mobile search view (S2) */
+  --z-modal: 60;
+  --z-skip-link: 100;     /* must sit above everything when focused */
+
+  /* ---------------------------------------------------------------
+   * Motion
+   * ------------------------------------------------------------- */
+  --motion-duration-fast: 120ms;   /* hover, press */
+  --motion-duration-base: 200ms;   /* popovers, fades */
+  --motion-duration-sheet: 280ms;  /* sheet snap */
+  --motion-duration-map: 450ms;    /* fitToExtent; read by mapTokens.js */
+  --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --motion-ease-enter: cubic-bezier(0, 0, 0.2, 1);
+  --motion-ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --motion-ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+  /* OpenLayers animations take a JS easing function (ol/easing easeOut),
+     not a cubic-bezier string; only the duration crosses over. */
+
+  /* ---------------------------------------------------------------
+   * Typography — FiraGO 400/500, self-hosted subset (@font-face in global.css)
+   * ------------------------------------------------------------- */
+  --font-family-sans: "FiraGO", system-ui, "Noto Sans Georgian", sans-serif;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-numeric-tabular: tabular-nums; /* FiraGO digits are proportional by default; counters need tnum */
+
+  --font-size-xs: 0.75rem;    /* 12px: attribution and scale bar only */
+  --font-size-sm: 0.875rem;   /* 14px: secondary text, counters */
+  --font-size-md: 1rem;       /* 16px: body, controls; inputs must stay ≥ 16px (iOS zoom on focus) */
+  --font-size-lg: 1.125rem;   /* 18px: section headings in the panel */
+  --font-size-xl: 1.375rem;   /* 22px: zone name */
+  --font-size-2xl: 1.625rem;  /* 26px: desktop h1 */
+
+  /* Mkhedruli: 29 of 33 letters leave the x-height band (Latin lowercase: 12 of 26),
+     glyphs span +0.753em / −0.216em in FiraGO. The white channel between lines is
+     line-height − 0.969em, so Georgian needs more than the usual Latin 1.5.
+     FiraGO "normal" is 1.2; never rely on it. */
+  --line-height-body: 1.6;      /* 0.63em channel: ~10px at 16px */
+  --line-height-heading: 1.3;   /* 1–2 line headings only */
+  --line-height-ui: 1.4;        /* single-line labels, buttons; ≥ 1.2 so descenders never clip */
+  /* No letter-spacing on Mkhedruli anywhere. */
+
+  /* ===============================================================
+   * MAP — read by src/map/styles/mapTokens.js (see header)
+   * =============================================================== */
+
+  /* Zone styles. Suffix = styles.json slug.
+     fill: zone colour; line: inner outline (≥ 3:1 on light basemap and against the casing);
+     pattern: non-colour second sign (none | hatch | bubbles);
+     marker: centroid-marker shape (circle | square | triangle | diamond | star). */
+  --map-zone-amber-fill: #C8661A;
+  --map-zone-amber-line: #7A3A0C;            /* 6.7:1 light, 8.6:1 vs casing */
+  --map-zone-amber-pattern: none;
+  --map-zone-amber-marker: circle;
+
+  --map-zone-semi-sweet-fill: #E58DB5;
+  --map-zone-semi-sweet-line: #8A2E5C;       /* 6.2:1 light, 8.0:1 vs casing */
+  --map-zone-semi-sweet-pattern: hatch;
+  --map-zone-semi-sweet-pattern-ink: #6E1F47; /* ≥ 3.3:1 against its own fill on every basemap */
+  --map-zone-semi-sweet-marker: diamond;
+
+  --map-zone-sparkling-fill: #23766F;
+  --map-zone-sparkling-line: #14504B;        /* 7.2:1 light, 9.2:1 vs casing */
+  --map-zone-sparkling-pattern: bubbles;
+  --map-zone-sparkling-pattern-ink: #FFFFFF;  /* bubble body: carries contrast on imagery */
+  --map-zone-sparkling-pattern-ring: #0B302D; /* bubble ring: carries contrast on light basemap */
+  --map-zone-sparkling-marker: star;
+
+  --map-zone-dry-white-fill: #F0DC7C;
+  --map-zone-dry-white-line: #6E5A0E;        /* 5.2:1 light, 6.7:1 vs casing */
+  --map-zone-dry-white-pattern: none;
+  --map-zone-dry-white-marker: square;
+
+  --map-zone-dry-red-fill: #76183A;
+  --map-zone-dry-red-line: #3E0A1E;          /* 12.9:1 light, 16.6:1 vs casing */
+  --map-zone-dry-red-pattern: none;
+  --map-zone-dry-red-marker: triangle;
+
+  /* Fill opacity depends on the basemap: imagery is busy, so fills are denser there.
+     Terrain uses the base values (verify in stage 5). */
+  --map-zone-fill-opacity: 0.65;
+  --map-zone-fill-opacity-imagery: 0.8;
+  --map-zone-fill-opacity-hover: 0.8;
+  --map-zone-fill-opacity-hover-imagery: 0.9;
+
+  /* Outline = white casing underneath + coloured line on top.
+     One of the two always reaches ≥ 3:1 against any background
+     (worst measured case: dry-white on light imagery, 3.7:1). */
+  --map-zone-casing: #FFFFFF;
+  --map-zone-line-width: 1.5;
+  --map-zone-casing-width: 4;
+  --map-zone-line-width-hover: 2.5;
+  --map-zone-casing-width-hover: 5;
+
+  /* Selected: same for every style; width is the non-colour signal */
+  --map-zone-selected-line: var(--color-text); /* 11.3:1 on light basemap, 14.5:1 vs casing */
+  --map-zone-line-width-selected: 3;
+  --map-zone-casing-width-selected: 7;
+
+  /* Dimmed (does not match the filter, still visible and clickable): no hue at all */
+  --map-zone-dimmed-fill: #A9ADA4;
+  --map-zone-dimmed-fill-opacity: 0.3;
+  --map-zone-dimmed-line: #5F645B;           /* 4.7:1 light, ≥ 3.3:1 on imagery with casing */
+  --map-zone-dimmed-line-width: 1;
+  --map-zone-dimmed-casing-width: 3;
+
+  /* Patterns, drawn as a CanvasPattern over the fill */
+  --map-pattern-spacing: 6;
+  --map-pattern-line-width: 1;
+  --map-pattern-bubble-radius: 1.5;
+  --map-pattern-bubble-ring-width: 0.75;
+
+  /* Centroid marker for zones too small on screen */
+  --map-marker-radius: 7;          /* 14px visible shape */
+  --map-marker-hit-radius: 12;     /* 24×24px target, WCAG 2.5.8 */
+  --map-marker-line-width: 1.5;
+  --map-marker-casing-width: 2;
+
+  /* Multi-style chip at labelPoint (variant 2: one colour by rule + chip) */
+  --map-chip-bg: var(--color-surface-raised);
+  --map-chip-line: var(--color-border);
+  --map-chip-marker-radius: 4;
+  --map-chip-line-width: 0.75;         /* stage 5: chip border, as drawn on the palette board */
+  --map-chip-marker-line-width: 1;     /* stage 5: outline of the mini markers inside the chip */
+
+  /* Zone labels, drawn on the canvas at labelPoint (stage 5).
+     Ink text on a white halo: 14.5:1, independent of the basemap. */
+  --map-label-font-family: var(--font-family-sans);
+  --map-label-font-weight: var(--font-weight-medium);
+  --map-label-font-size: 14;                          /* CSS px, unitless like every map number */
+  --map-label-color: var(--color-text);
+  --map-label-color-dimmed: var(--color-text-muted);  /* 6.5:1 on the halo */
+  --map-label-halo: #FFFFFF;
+  --map-label-halo-width: 3;
+  --map-label-gap: 4;                                 /* label ↔ marker/chip, and declutter padding */
+
+  /* Regions (ADM1) */
+  --map-region-line: #575E66;      /* 5.1:1 on light basemap, 6.6:1 vs casing */
+  --map-region-line-width: 1.25;
+  --map-region-line-dash: 6 4;
+  --map-region-casing: #FFFFFF;
+  --map-region-casing-width: 3.5;
+  /* Special-status regions: tokens added in chat 3, once the display rule exists. */
+}
+
+/* Reduced motion: transitions become effectively instant.
+   1ms (not 0) so transitionend still fires for code that waits on it.
+   The map reads 0 and calls fit/animate without animation. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration-fast: 1ms;
+    --motion-duration-base: 1ms;
+    --motion-duration-sheet: 1ms;
+    --motion-duration-map: 0ms;
+  }
+}

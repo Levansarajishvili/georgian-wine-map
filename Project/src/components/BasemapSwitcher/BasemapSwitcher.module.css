@@ -1,0 +1,78 @@
+/* src/components/BasemapSwitcher/BasemapSwitcher.module.css */
+/* The button look itself is the shared .map-button class (styles/global.css). */
+
+.trigger {
+  anchor-name: --basemap-trigger;
+}
+
+.icon {
+  width: var(--size-icon);
+  height: var(--size-icon);
+}
+
+/* Shown in the top layer, so it is above the sheet without a z-index.
+   Without anchor positioning the browser default applies: centred on screen. */
+.popover {
+  padding: var(--space-3);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-popover);
+}
+
+/* Mobile: the button is near the bottom, so the popover grows upwards from it. */
+@supports (position-area: left) {
+  .popover {
+    position-anchor: --basemap-trigger;
+    position-area: left span-top;
+    position-try-fallbacks: flip-block;
+    inset: auto;
+    margin: 0 var(--space-2) 0 0;
+  }
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.legend {
+  margin-bottom: var(--space-1);
+  padding: 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-ui);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--size-control);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-ui);
+  cursor: pointer;
+}
+
+.option input {
+  width: var(--size-icon);
+  height: var(--size-icon);
+  margin: 0;
+  accent-color: var(--color-accent);
+}
+
+/* Desktop and landscape phones: the button is in the top-right corner. */
+@media (min-width: 48rem), (orientation: landscape) and (max-height: 30rem) {
+  .popover {
+    position-area: left span-bottom;
+  }
+
+  .option {
+    min-height: var(--size-control-sm);
+  }
+}
