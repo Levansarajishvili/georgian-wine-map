@@ -1,5 +1,5 @@
 // src/copy/ka.js
-// Every UI string lives here (04-copy-voice.md). Stage 4: map and layout strings only.
+// Every UI string lives here (04-copy-voice.md). Stages 4–5: map and layout strings only.
 
 export const ka = {
   app: {
@@ -11,6 +11,7 @@ export const ka = {
     zoomOut: 'დაშორება',
     loading: 'რუკა იტვირთება…',
     loadError: 'რეგიონების საზღვრები ვერ ჩაიტვირთა.',
+    zonesLoadError: 'ღვინის ზონები ვერ ჩაიტვირთა.',
     retry: 'თავიდან ცდა',
   },
   basemap: {

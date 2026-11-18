@@ -6,8 +6,11 @@ import Zoom from 'ol/control/Zoom';
 import { easeOut } from 'ol/easing';
 import { isEmpty } from 'ol/extent';
 import { createBasemapLayers } from './basemaps';
+import { attachZoneInteractions } from './interactions';
 import { createRegionsLayer } from './layers/regionsLayer';
+import { createZonesLayer } from './layers/zonesLayer';
 import { readMapTokens } from './styles/mapTokens';
+import { LABEL_MIN_ZOOM } from './styles/zoneStyles';
 
 const PROJECTION = 'EPSG:3857';
 
@@ -16,8 +19,8 @@ const PROJECTION = 'EPSG:3857';
 const MIN_ZOOM = 5;
 const MAX_ZOOM = 15;
 
-// Layer order: basemap → regions → zones (zones are added in stage 5).
-const Z_INDEX = { basemap: 0, regions: 10 };
+// Layer order: basemap → regions → zones.
+const Z_INDEX = { basemap: 0, regions: 10, zones: 20 };
 
 /**
  * Creates the map and returns the map controller: the only way the rest of
@@ -42,6 +45,19 @@ export function createMap({ target, zoomTarget, attributionTarget, labels, basem
   const regions = createRegionsLayer(tokens.region);
   regions.layer.setZIndex(Z_INDEX.regions);
 
+  const view = new View({
+    projection: PROJECTION,
+    minZoom: MIN_ZOOM,
+    maxZoom: MAX_ZOOM,
+    enableRotation: false,
+  });
+
+  const zones = createZonesLayer(tokens.zone, {
+    labelMaxResolution: view.getResolutionForZoom(LABEL_MIN_ZOOM),
+  });
+  zones.layer.setZIndex(Z_INDEX.zones);
+  zones.setBasemap(basemapId);
+
   const zoom = new Zoom({
     target: zoomTarget,
     zoomInLabel: '+',
@@ -60,30 +76,63 @@ export function createMap({ target, zoomTarget, attributionTarget, labels, basem
     collapsible: false,
   });
 
-  const view = new View({
-    projection: PROJECTION,
-    minZoom: MIN_ZOOM,
-    maxZoom: MAX_ZOOM,
-    enableRotation: false,
-  });
-
   const map = new Map({
     target,
     view,
-    layers: [...basemapLayers.values(), regions.layer],
+    layers: [...basemapLayers.values(), regions.layer, zones.layer],
     controls: [zoom, attribution],
   });
 
+  /** @type {Set<(id: string|null) => void>} */
+  const zoneClickListeners = new Set();
+  const detachZoneInteractions = attachZoneInteractions(map, zones, {
+    onZoneClick: (id) => zoneClickListeners.forEach((listener) => listener(id)),
+  });
+
   return {
-    /** @param {{ regions?: import('ol/Feature').default[] }} features */
-    setFeatures({ regions: regionFeatures }) {
+    /**
+     * @param {object} features
+     * @param {import('ol/Feature').default[]} [features.regions]
+     * @param {import('ol/Feature').default[]} [features.zones] from loadZoneGeometry()
+     */
+    setFeatures({ regions: regionFeatures, zones: zoneFeatures }) {
       if (regionFeatures) regions.setFeatures(regionFeatures);
+      if (zoneFeatures) zones.setFeatures(zoneFeatures);
     },
 
     /** @param {string} id basemap id from map/basemaps.js */
     setBasemap(id) {
       if (!basemapLayers.has(id)) return;
       basemapLayers.forEach((layer, layerId) => layer.setVisible(layerId === id));
+      zones.setBasemap(id);
+    },
+
+    /**
+     * Filter result for the zones layer: zones outside `matchingIds` are dimmed.
+     *
+     * @param {object} appearance
+     * @param {Set<string>|null} [appearance.matchingIds] null: no filter
+     * @param {Map<string, string>} [appearance.colorKeyById] zone id → wine style slug
+     */
+    setZoneAppearance(appearance) {
+      zones.setAppearance(appearance);
+    },
+
+    /** @param {string|null} id zone id, or null to clear the selection */
+    setSelectedZone(id) {
+      zones.setSelected(id);
+    },
+
+    /**
+     * Subscribes to clicks on the map: the listener gets the clicked zone's
+     * id, or null when the click hit no zone.
+     *
+     * @param {(id: string|null) => void} listener
+     * @returns {() => void} unsubscribe
+     */
+    onZoneClick(listener) {
+      zoneClickListeners.add(listener);
+      return () => zoneClickListeners.delete(listener);
     },
 
     /**
@@ -104,6 +153,8 @@ export function createMap({ target, zoomTarget, attributionTarget, labels, basem
     },
 
     destroy() {
+      detachZoneInteractions();
+      zoneClickListeners.clear();
       map.setTarget(undefined);
       // Controls live in their own targets; dispose() removes their elements too.
       map.dispose();

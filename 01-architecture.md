@@ -1,6 +1,6 @@
 # 01 — არქიტექტურა
 საქართველოს ღვინის რუკა · v1
-ბოლო განახლება: 2026-11-18 (ეტაპი 4: საბაზისო რუკა)
+ბოლო განახლება: 2026-11-18 (ეტაპი 5: ზონების შრე)
 სტატუსი: პროექტი. §10-ის პუნქტები დადასტურებამდე წინადადებად ითვლება.
 
 ---
@@ -46,10 +46,10 @@ map_2/
     │   ├── regions.json          # რეგიონების ატრიბუტები (გეომეტრიის გარეშე)
     │   ├── zones.json            # ზონების ინდექსი: ატრიბუტები + კავშირები (გეომეტრიის გარეშე)
     │   ├── regions.geo.json      # ADM1 გეომეტრია
-    │   └── zones.geo.json        # ზონების გეომეტრია (MultiPolygon)
+    │   └── zones.geo.json        # ზონების გეომეტრია (MultiPolygon); ეტაპ 5-ზე placeholder
     │
     ├── loaders/
-    │   ├── catalogs.js           # styles, grapes, regions, zones index — სტატიკური import
+    │   ├── catalogs.js           # styles, grapes, regions, zones index — სტატიკური import (ეტაპ 5-ზე: zones და styles)
     │   └── geometry.js           # *.geo.json — fetch hash-იანი URL-ით, promise cache, retry
     │
     ├── domain/                   # სუფთა ფუნქციები: React-ისა და ol-ის გარეშე
@@ -70,17 +70,17 @@ map_2/
     ├── map/                      # მხოლოდ OpenLayers; React-ის გარეშე
     │   ├── createMap.js          # Map + View + controls; აბრუნებს რუკის კონტროლერს
     │   ├── basemaps.js           # XYZ კონფიგურაცია: Light, Terrain, Imagery
-    │   ├── interactions.js       # click → ზონის id; hover შიგნითვე, React-ის გარეშე
+    │   ├── interactions.js       # click → ზონის id (zonesLayer.pickAt); hover შიგნითვე, React-ის გარეშე
     │   ├── layers/
     │   │   ├── regionsLayer.js
     │   │   └── zonesLayer.js     # ფლობს სტილის მდგომარეობას; ცვლილება → layer.changed()
     │   └── styles/
     │       ├── regionStyle.js
-    │       ├── zoneStyle.js      # active / dimmed / selected / hover; პოლიგონი ან ცენტროიდის მარკერი
-    │       └── mapTokens.js      # tokens.css → getComputedStyle; ეტაპ 4-ზე: რეგიონები და motion
+    │       ├── zoneStyles.js     # active / dimmed / selected / hover; პოლიგონი ან ცენტროიდის მარკერი; ლეიბლი, ჩიპი, ნიმუშები
+    │       └── mapTokens.js      # tokens.css → getComputedStyle; ეტაპ 4: რეგიონები და motion; ეტაპ 5: zone ჯგუფი
     │
     ├── components/               # თითო ფოლდერში Component.jsx + Component.module.css
-    │   ├── MapView/              # MapView.jsx + MapContext.js; ფლობს კონტროლერის ref-ს; state → map-ის ერთადერთი ხიდი
+    │   ├── MapView/              # MapView.jsx + MapContext.js + useZoneSelection.js; ფლობს კონტროლერის ref-ს; state → map-ის ერთადერთი ხიდი
     │   ├── FilterPanel/
     │   ├── ZonePanel/
     │   ├── RegionList/
@@ -99,23 +99,23 @@ map_2/
 
 | მოდული | პასუხისმგებლობა | დამოკიდებულებები |
 |---|---|---|
-| **Map core** · `map/createMap.js` | ქმნის `Map`-ს და `View`-ს (EPSG:3857, საწყისი ხედი საქართველოზე), controls (zoom, attribution), ფენების რიგს zIndex-ით: basemap → რეგიონები → ზონები. აბრუნებს **რუკის კონტროლერს**: `setMatchingZones`, `setSelectedZone`, `setBasemap`, `fitToExtent`, `setFeatures`, `destroy`. React-ს არ იცნობს. **ეტაპ 4-ზე არსებობს:** `setFeatures({ regions })`, `setBasemap(id)`, `fitToExtent(extent, { padding, animate })`, `destroy()` (`setTarget(undefined)` + `dispose()`). View-ს ცენტრი არ აქვს პირველ `fitToExtent`-მდე; zoom 5–15; როტაცია გამორთულია. Zoom და Attribution კონტროლები MapView-ის მიწოდებულ ელემენტებში იხატება (`target`). | `ol/Map`, `ol/View`, `ol/control`, `map/basemaps`, `map/layers/*`, `map/interactions` |
+| **Map core** · `map/createMap.js` | ქმნის `Map`-ს და `View`-ს (EPSG:3857, საწყისი ხედი საქართველოზე), controls (zoom, attribution), ფენების რიგს zIndex-ით: basemap → რეგიონები → ზონები. აბრუნებს **რუკის კონტროლერს**: `setMatchingZones`, `setSelectedZone`, `setBasemap`, `fitToExtent`, `setFeatures`, `destroy`. React-ს არ იცნობს. **ეტაპ 4-ზე არსებობს:** `setFeatures({ regions })`, `setBasemap(id)`, `fitToExtent(extent, { padding, animate })`, `destroy()` (`setTarget(undefined)` + `dispose()`). View-ს ცენტრი არ აქვს პირველ `fitToExtent`-მდე; zoom 5–15; როტაცია გამორთულია. Zoom და Attribution კონტროლები MapView-ის მიწოდებულ ელემენტებში იხატება (`target`). **ეტაპ 5-ზე დაემატა:** ზონების ფენა (zIndex: basemap 0 → რეგიონები 10 → ზონები 20); `setFeatures({ regions, zones })`; `setZoneAppearance({ matchingIds, colorKeyById })` (§3-ის `setMatchingZones`-ის ნაცვლად); `setSelectedZone(id)`; `onZoneClick(listener)` → გამოწერის გაუქმების ფუნქცია; `setBasemap` ზონების ფენასაც ატყობინებს (სატელიტზე შევსება მკვრივია). `createMap` ფენას `view.getResolutionForZoom(LABEL_MIN_ZOOM)`-ს გადასცემს. `destroy()` ჯერ interaction-ებს ხსნის. | `ol/Map`, `ol/View`, `ol/control`, `map/basemaps`, `map/layers/*`, `map/interactions` |
 | **Basemaps** · `map/basemaps.js` | XYZ წყაროების სია სამი სლოტით (`light`, `terrain`, `imagery`): `id`, `url`, `attribution`, `subdomains`, `maxZoom`, `key { placeholder, env }`. ქართული სახელი `copy/ka.js`-შია (`basemap.names[id]`). `url` და `attribution` სიიდან უცვლელად იწერება; Leaflet-ის `{s}`/`{r}` და გასაღების ჩასმა კოდში ხდება (`buildUrlOptions`). ყველა ფენა ერთხელ იქმნება, გადართვა `setVisible`-ია. ფენები და პირობები: 06-data-sources.md §8. გასაღები `import.meta.env.VITE_*`-დან (ის კლიენტის bundle-ში ჩანს, ამიტომ დომენზე შეზღუდული უნდა იყოს). | `ol/layer/Tile`, `ol/source/XYZ` |
 | **Layers** · `map/layers/regionsLayer.js` | ADM1 vector ფენა. ცალკე სტილის მდგომარეობა (მაგ. ფოკუსში მყოფი რეგიონი). აფხაზეთისა და ცხინვალის რეგიონის ჩვენების წესისთვის ადგილი რჩება (ჩატი 3). | `ol/layer/Vector`, `ol/source/Vector`, `map/styles/regionStyle` |
-| **Layers** · `map/layers/zonesLayer.js` | ზონების vector ფენა რეგიონების ზემოთ. ფლობს **სტილის მდგომარეობას** `{ matchingIds, selectedId, hoveredId }`. ყოველი ცვლილება: მდგომარეობის განახლება + `layer.changed()`. ფენა და features ხელახლა არ იქმნება. | `ol/layer/Vector`, `ol/source/Vector`, `map/styles/zoneStyle` |
-| **Layers** · `map/styles/zoneStyle.js` | style function: აქტიური / ჩამქრალი / არჩეული / hover. ეკრანზე პატარა ზონას (bbox პიქსელებში ზღვარზე ნაკლები) ხატავს **ცენტროიდის მარკერად** იმავე feature-ზე, `labelPoint`-იდან. Style ობიექტების cache. ზღვარი: ეტაპი 5. | `ol/style/*`, `map/styles/mapTokens` |
-| **Layers** · `map/styles/mapTokens.js` | ერთადერთი ადგილი, საიდანაც style function-ები ფერს იღებენ: `readMapTokens()` კითხულობს `tokens.css`-ს `getComputedStyle`-ით (§8). ეტაპ 4-ზე: `region` ჯგუფი და `motion.mapDuration`; ზონის ტოკენები ეტაპ 5-ზე ემატება. | `tokens.css` |
-| **Layers** · `map/interactions.js` | `singleclick` → ზონის id → `onZoneClick` callback. hover (მხოლოდ pointer მოწყობილობაზე) პირდაპირ `zonesLayer`-ს ცვლის, React-ის გავლით არა. `hitTolerance` შეხებისთვის, მარკერის მიზანი ≥ 24×24 CSS px (WCAG 2.5.8). | `ol/Map` events |
-| **Data loading** · `loaders/catalogs.js` | სტატიკური import: `styles.json`, `grapes.json`, `regions.json`, `zones.json`. აწვდის Map-ებს id-ით (lookup). სინქრონულად ხელმისაწვდომია პირველივე render-ზე. | `src/data/*.json` |
-| **Data loading** · `loaders/geometry.js` | `*.geo.json` hash-იანი URL-ით (`?url`) და `fetch`-ით. ჩატვირთვა `main.jsx`-დან იწყება, React-ის render-მდე, პარალელურად. promise cache (ერთი მოთხოვნა ფაილზე), GeoJSON → Features (4326 → 3857), შეცდომა + retry. აბრუნებს `{ features, extent }`; ჩავარდნილი მოთხოვნა cache-დან იშლება, რომ შემდეგმა გამოძახებამ თავიდან სცადოს. ეტაპ 4-ზე: `loadRegionGeometry()`. | `fetch`, `ol/format/GeoJSON` |
+| **Layers** · `map/layers/zonesLayer.js` | ზონების vector ფენა რეგიონების ზემოთ. ფლობს **სტილის მდგომარეობას** `{ matchingIds, colorKeyById, selectedId, hoveredId, imagery }`. ყოველი ცვლილება: მდგომარეობის განახლება + `layer.changed()`. ფენა და features ხელახლა არ იქმნება. **ეტაპ 5:** `declutter: true`. `setFeatures` შემოსულ Feature-ებს ნორმალიზებს: ერთი id-ის ნაწილებს აერთიანებს, Polygon-ს MultiPolygon-ად აქცევს, ითვლის `labelGeometry`-ს (`labelPoint`; თუ ის ზონის გარეთაა, ყველაზე დიდი ნაწილის შიდა წერტილი), `span`-ს (bbox-ის დიდი გვერდი) და `rank`-ს (0 = ყველაზე დიდი ფართობი). ყოველთვის ახალ Feature-ებს ქმნის კოორდინატებიდან: OpenLayers 10-ში `new MultiPolygon([Polygon…])` წყარო Polygon-ების `ends`-ს ადგილზე ცვლის და StrictMode-ის მეორე გამოძახებაზე გეომეტრია ფუჭდება. `pickAt(coordinate, resolution, tolerancePx)` აბრუნებს ზონების id-ებს საუკეთესო კანდიდატით დასაწყისში: მარკერი (24×24px სამიზნე, უახლოესი ცენტრი) → წერტილის შემცველი ზონები, პატარა ფართობით დაწყებული → ცდომილების ფარგლებში უახლოესი საზღვარი. OpenLayers-ის hit detection არ გამოიყენება, რომ წესი ყველა მოწყობილობაზე ერთი იყოს. | `ol/Feature`, `ol/extent`, `ol/geom/*`, `ol/layer/Vector`, `ol/source/Vector`, `map/styles/zoneStyles` |
+| **Layers** · `map/styles/zoneStyles.js` | style function: აქტიური / ჩამქრალი / არჩეული / hover. ეკრანზე პატარა ზონას (bbox პიქსელებში ზღვარზე ნაკლები) ხატავს **ცენტროიდის მარკერად** იმავე feature-ზე, `labelPoint`-იდან. Style ობიექტების cache. **ეტაპ 5:** ზღვარი `2 × --map-marker-hit-radius` (24px) bbox-ის დიდ გვერდზე; `isZoneMarker` საერთოა სტილისა და `pickAt`-ისთვის. ხატვის რიგი zIndex-ის ზოლებით: შევსებები (`rank`-ით) → casing-ები → ხაზები → hover-ის კონტური → არჩეულის კონტური; ასე საზღვარს სხვა ზონის შევსება არ ფარავს და არჩეულ ზონაში ჩადგმული ზონა ხილული რჩება. ნიმუშები (შტრიხი, ბუშტები) `CanvasPattern`-ია შევსების ზემოთ, ეკრანზე მიბმული. მარკერი `RegularShape`/`Circle`-ია სტილის ფორმით, `declutterMode: 'obstacle'`. ლეიბლი `labelPoint`-ზე `LABEL_MIN_ZOOM`-იდან (9), declutter-ით; hover-ისა და არჩეული ზონის ლეიბლი ყოველთვის ჩანს (`'obstacle'`). რამდენიმესტილიანი ზონის ჩიპი canvas-ზე იხატება (`Icon`), ლეიბლთან ერთ Style-შია და მასთან ერთად ჩანს ან ქრება. ფერი: `colorKeyById.get(id)` ან `styleIds[0]`; უცნობი სტილი ჩამქრალი ფერებით იხატება. | `ol/style/*`, `map/styles/mapTokens` |
+| **Layers** · `map/styles/mapTokens.js` | ერთადერთი ადგილი, საიდანაც style function-ები ფერს იღებენ: `readMapTokens()` კითხულობს `tokens.css`-ს `getComputedStyle`-ით (§8). ეტაპ 4-ზე: `region` ჯგუფი და `motion.mapDuration`; ზონის ტოკენები ეტაპ 5-ზე ემატება. **ეტაპ 5:** `zone` ჯგუფი: `styles[slug]` (fill, line, pattern, marker), `fillOpacity`, casing და ხაზის სისქეები, `hover`, `selected`, `dimmed`, `pattern`, `marker`, `chip`, `label`. slug-ების სია `ZONE_STYLE_IDS`-ია და `styles.json`-ს უნდა ემთხვეოდეს (`map/` მონაცემის ფაილებს არ აიმპორტებს). | `tokens.css` |
+| **Layers** · `map/interactions.js` | `singleclick` → ზონის id → `onZoneClick` callback. hover (მხოლოდ pointer მოწყობილობაზე) პირდაპირ `zonesLayer`-ს ცვლის, React-ის გავლით არა. `hitTolerance` შეხებისთვის, მარკერის მიზანი ≥ 24×24 CSS px (WCAG 2.5.8). **ეტაპ 5:** `attachZoneInteractions(map, zones, { onZoneClick })` → `detach`. ზონას `zonesLayer.pickAt` პოულობს, OpenLayers-ის `hitTolerance` არ გამოიყენება: ცდომილება მაუსზე 2px, სხვა pointer-ზე 8px (დაშვება). ცარიელ ადგილას დაკლიკება `onZoneClick(null)`. hover მხოლოდ `pointerType === 'mouse'`-ზე, გადათრევისას არა; `moveend`-ზე ხელახლა ითვლება (zoom უძრავი მაუსის ქვეშ), `pointerleave`-ზე იშლება; cursor `pointer`. | `ol/Map` events, `map/layers/zonesLayer` |
+| **Data loading** · `loaders/catalogs.js` | სტატიკური import: `styles.json`, `grapes.json`, `regions.json`, `zones.json`. აწვდის Map-ებს id-ით (lookup). სინქრონულად ხელმისაწვდომია პირველივე render-ზე. **ეტაპ 5-ზე არსებობს:** `stylesById` და `zonesById`; დანარჩენი ცნობარები და უკუ ინდექსები ეტაპ 6-ზე. | `src/data/*.json` |
+| **Data loading** · `loaders/geometry.js` | `*.geo.json` hash-იანი URL-ით (`?url`) და `fetch`-ით. ჩატვირთვა `main.jsx`-დან იწყება, React-ის render-მდე, პარალელურად. promise cache (ერთი მოთხოვნა ფაილზე), GeoJSON → Features (4326 → 3857), შეცდომა + retry. აბრუნებს `{ features, extent }`; ჩავარდნილი მოთხოვნა cache-დან იშლება, რომ შემდეგმა გამოძახებამ თავიდან სცადოს. ეტაპ 4-ზე: `loadRegionGeometry()`. **ეტაპ 5:** `loadZoneGeometry()` ჩატვირთვისას ზონების ინდექსს Feature-ებს `Feature.id`-ით უერთებს: `name` (`name.ka`), `styleIds` (`styles.json`-ის `order`-ით დალაგებული; პირველი ნაგულისხმევი ფერია) და `labelPoint` (EPSG:3857). ინდექსში არარსებული Feature ატრიბუტებს არ იღებს და ფენა მას გამოტოვებს. | `fetch`, `ol/format/GeoJSON`, `ol/proj`, `loaders/catalogs` |
 | **Filter state** · `domain/filter.js` | `matches(zone, filter)`: ყოველი არაცარიელი განზომილება — თანაკვეთა ≠ ∅ (OR), ყველა განზომილება ერთად (AND). ცარიელი ფილტრი = ყველა ზონა აქტიურია. | — |
 | **Filter state** · `domain/facets.js` | ყოველი ვარიანტის მთვლელი: ზონები, რომლებიც **სხვა** განზომილებების ფილტრს აკმაყოფილებს და ამ ვარიანტს შეიცავს. ვარიანტი disabled-ია, თუ მთვლელი 0-ია და ვარიანტი მონიშნული არ არის. მონიშნული ვარიანტი არასოდეს გამოირთვება, რომ მოხსნა შეიძლებოდეს. | `domain/filter` |
 | **Filter state** · `domain/filterParams.js` | `parse`: URL → ფილტრის ობიექტი; უცნობი slug-ები და დუბლიკატები იშლება. `serialize`: ფილტრი → კანონიკური query (მნიშვნელობები დალაგებული, ცარიელი განზომილება გამოტოვებული, გასაღებების რიგი `style`, `grape`, `zone`). | `loaders/catalogs` (ცნობარები ვალიდაციისთვის) |
 | **Filter state** · `state/useFilter.js` | hook: ფილტრი URL-იდან (`useSyncExternalStore`, snapshot = `location.search` სტრიქონი), parse მემოიზებულია სტრიქონის მიხედვით. მოქმედებები: `toggle(dimension, slug)`, `clear(dimension?)` → `urlState.replace`. | `state/urlState`, `domain/filterParams` |
 | **Filter state** · `state/useFilterResult.js` | წარმოებული მონაცემი `useMemo`-თი: `matchingIds` (Set ან `null`, თუ ფილტრი ცარიელია), მთვლელები, შედეგების რაოდენობა. არაფერს ინახავს. | `domain/filter`, `domain/facets`, `loaders/catalogs` |
 | **URL sync** · `state/urlState.js` | ერთადერთი მოდული, რომელიც `window.history`-ს ეხება: `read`, `subscribe`, `replace`, `push`. ისმენს `popstate`-ს (back/forward) და საკუთარ ჩაწერებზე თავად აგზავნის შეტყობინებას (`pushState`/`replaceState` `popstate`-ს არ იწვევს). ცვლის მხოლოდ საკუთარ გასაღებებს, უცნობ პარამეტრებს (utm და სხვ.) ტოვებს. ჩატვირთვისას URL-ს კანონიკურ ფორმამდე ასწორებს `replaceState`-ით. | `window.history`, `window.location` |
-| **URL sync** · `state/useSelectedZone.js` | არჩეული ზონა URL-იდან (`zone=`); `select(id)` → `push`, `close()` → `replace`. უცნობი id → პანელი დახურულია, პარამეტრი იშლება. | `state/urlState`, `loaders/catalogs` |
-| **UI** · `components/MapView` | ფლობს `mapRef`-ს: Map იქმნება `useEffect`-ში, cleanup-ზე `map.setTarget(undefined)` და ref-ის გასუფთავება. effect-ები აკავშირებს state-ს კონტროლერთან: `matchingIds` → `setMatchingZones`, არჩეული ზონა → `setSelectedZone` + `fitToExtent`. callback-ები ref-შია, რომ Map ხელახლა არ შეიქმნას. `MapContext` აწვდის კონტროლერის ref-ს (სტაბილური ობიექტი, re-render-ს არ იწვევს) და ცალკე ფაილშია (`MapContext.js`). **ეტაპ 4:** საწყისი ხედი რეგიონების extent-იდან მოდის (`fitToExtent`); padding overlay-ს გამოთვლილი padding-ია (რუკის კიდე + `--map-inset-bottom`). ჩატვირთვის მდგომარეობა `role="status"` ფირფიტაზე ჩანს, შეცდომისას „თავიდან ცდა“. | `map/createMap`, `state/*`, `loaders/geometry` |
+| **URL sync** · `state/useSelectedZone.js` | არჩეული ზონა URL-იდან (`zone=`); `select(id)` → `push`, `close()` → `replace`. უცნობი id → პანელი დახურულია, პარამეტრი იშლება. **ეტაპ 5:** ჯერ არ არსებობს. არჩევანს დროებით `components/MapView/useZoneSelection.js` ინახავს local state-ში იმავე ინტერფეისით (`selectedId`, `select`, `clear`). | `state/urlState`, `loaders/catalogs` |
+| **UI** · `components/MapView` | ფლობს `mapRef`-ს: Map იქმნება `useEffect`-ში, cleanup-ზე `map.setTarget(undefined)` და ref-ის გასუფთავება. effect-ები აკავშირებს state-ს კონტროლერთან: `matchingIds` → `setMatchingZones`, არჩეული ზონა → `setSelectedZone` + `fitToExtent`. callback-ები ref-შია, რომ Map ხელახლა არ შეიქმნას. `MapContext` აწვდის კონტროლერის ref-ს (სტაბილური ობიექტი, re-render-ს არ იწვევს) და ცალკე ფაილშია (`MapContext.js`). **ეტაპ 4:** საწყისი ხედი რეგიონების extent-იდან მოდის (`fitToExtent`); padding overlay-ს გამოთვლილი padding-ია (რუკის კიდე + `--map-inset-bottom`). ჩატვირთვის მდგომარეობა `role="status"` ფირფიტაზე ჩანს, შეცდომისას „თავიდან ცდა“. **ეტაპ 5:** ზონების გეომეტრია ცალკე effect-ით იტვირთება, რეგიონებისგან დამოუკიდებლად (ერთი ფაილის შეცდომა მეორეს არ მალავს); სტატუსი ორია, „თავიდან ცდა“ ერთი. `useZoneSelection(controllerRef)` აკავშირებს `onZoneClick` → `selectedId` → `setSelectedZone`; hook Map-ის შემქმნელი effect-ის შემდეგ უნდა გამოიძახებოდეს (effect-ების რიგი). | `map/createMap`, `state/*`, `loaders/geometry` |
 | **UI** · `components/FilterPanel` | სტილისა და ჯიშის ვარიანტები ნატიური form controls-ით, მთვლელი ყოველ ვარიანტთან, disabled მდგომარეობა, „გასუფთავება“. შედეგების რაოდენობა `aria-live` რეგიონში. ძიება სინონიმებით (`orange wine` → ქარვისფერი), თუ ძიების ველი v1-ში შევა (ეტაპი 6). | `state/useFilter`, `state/useFilterResult`, `domain/catalog`, `copy/ka` |
 | **UI** · `components/ZonePanel` | არჩეული ზონა: სახელი, რეგიონი, ჯიშები, სტილები, წყარო. `source`-ისა და `verified`-ის ჩვენების წესი: ეტაპი 7. დახურვა + ფოკუსის დაბრუნება. | `state/useSelectedZone`, `loaders/catalogs`, `copy/ka` |
 | **UI** · `components/RegionList` | რეგიონები და მათი ზონები DOM სიად: რუკის ხელმისაწვდომი ეკვივალენტი. რეგიონი → `fitToExtent` (კონტროლერი `MapContext`-იდან), ზონა → `select`. ფილტრით ჩამქრალი ზონები აქაც ჩამქრალია, არა დამალული. | `loaders/catalogs`, `state/*`, `MapContext` |
@@ -189,6 +189,8 @@ flowchart TD
 4. **გამოთვლა.** `useFilterResult` ზონების ინდექსიდან ითვლის `matchingIds`-ს და მთვლელებს.
 5. **UI.** FilterPanel იღებს მთვლელებს და disabled მდგომარეობას; `aria-live` აცხადებს შედეგების რაოდენობას.
 6. **რუკა.** `MapView`-ის effect იძახებს `setMatchingZones`-ს → `zonesLayer` ანახლებს სტილის მდგომარეობას → `layer.changed()` → style function ყოველ feature-ს ხელახლა აფასებს: აქტიური ან ჩამქრალი. ფენა, source და features არ იცვლება.
+
+**ეტაპ 5:** კოდში ამ ნაბიჯის მეთოდს `setZoneAppearance({ matchingIds, colorKeyById })` ჰქვია (§10); დიაგრამა და ნაბიჯები `setMatchingZones`-ს ახსენებს დადასტურებამდე. სტილის ფუნქციის ფაილია `zoneStyles.js`.
 
 ### საწყისი ჩატვირთვა
 
@@ -289,6 +291,8 @@ URL-ის წესები:
 
 **განახლება (ჩატი 2, ეტაპი 4):** მიდგომა დაფიქსირდა: `tokens.css` → `getComputedStyle` → `map/styles/mapTokens.js` (ადრე `mapColors.js`). ქვემოთ ჩამოთვლილი საზღვრები ძალაში რჩება.
 
+**განახლება (ეტაპი 5):** `mapTokens.js` ზონის ყველა ტოკენს კითხულობს (`zone` ჯგუფი). 03-tokens.css-ს დაემატა ლეიბლის ტოკენები (`--map-label-*`) და ჩიპის ორი სისქე, რადგან canvas-ის ტექსტს შრიფტი, ფერი და halo ცალკე სჭირდება. ფერის წესი: ზონის ფერი `colorKeyById`-დან ან `styleIds`-ის პირველი ელემენტიდან; ჩამქრალი ზონა ფერისა და ნიმუშის გარეშეა. თემის შეცვლის შემთხვევისთვის `zoneStyles`-ს `clearCache()` აქვს; ტოკენების ხელახლა წაკითხვა v1-ში არ არის.
+
 თავდაპირველი ტექსტი: მიდგომა **არ** ფიქსირდება. ფიქსირდება მხოლოდ საზღვრები:
 
 - `map/styles/mapTokens.js` ერთადერთი მოდულია, საიდანაც `zoneStyle` და `regionStyle` ფერს იღებენ. სხვაგან ფერი არ ჩნდება.
@@ -358,9 +362,22 @@ URL-ის წესები:
 7. **Lint:** ESLint flat config, როგორც §2-შია. Vite-ის ამჟამინდელი შაბლონი oxlint-ს იყენებს; არჩევანი ESLint-ზე დარჩა, `scripts/**` Node-ის გლობალებით.
 8. **`MapContext`-ის არე:** ახლა მხოლოდ MapView-ის შიგნით მოქმედებს. RegionList პანელშია და მასაც დასჭირდება; provider-ის ადგილი ეტაპ 5–6-ზე გადასაწყვეტია.
 
+### ეტაპ 5-ის დამატებები (დასადასტურებელი)
+1. **ფაილის სახელი `map/styles/zoneStyles.js`** (იყო `zoneStyle.js`): ეტაპ 5-ის დავალებაში ასე ეწერა. ერთი სახელი უნდა დარჩეს.
+2. **`components/MapView/useZoneSelection.js`**: MapView-ის hook, რომელიც კონტროლერს იყენებს, ამიტომ `state/`-ში არ არის. არჩევანი local state-შია; `state/urlState.js`-ის გაჩენისას მხოლოდ შენახვის ადგილი იცვლება და hook `state/useSelectedZone`-ს დაეყრდნობა (§5, `zone=`).
+3. **კონტროლერი:** `setZoneAppearance({ matchingIds, colorKeyById })` (`setMatchingZones`-ის ნაცვლად, ჩატ 2-ის ცვლილების მიხედვით), `setSelectedZone(id)`, `onZoneClick(listener)`. ეს უკანასკნელი გამოწერაა და არა `createMap`-ის პარამეტრი: hook-ს ref-ში შენახული callback აღარ სჭირდება.
+4. **`loaders/catalogs.js` მინიმალურია** (`stylesById`, `zonesById`); `domain/zoneColor.js` ჯერ არ არის. ნაგულისხმევი ფერის წესი („ყველაზე პატარა `order`“) `loadZoneGeometry`-ის დალაგებაშია: `styleIds[0]`.
+5. **`loadZoneGeometry` ინდექსს Feature-ებს უერთებს.** გეომეტრიის ფაილის `properties` ცარიელი რჩება (02 §1); ატრიბუტები მეხსიერებაში, ჩატვირთვისას ემატება.
+6. **საკუთარი hit detection** (`zonesLayer.pickAt`) OpenLayers-ის `forEachFeatureAtPixel`-ის ნაცვლად: წესი დეტერმინირებულია, ხატვის რიგს ემთხვევა და `CanvasPattern`-იან შევსებაზე არ არის დამოკიდებული.
+7. **არჩევის წესი გადაფარვაზე:** მარკერი → ყველაზე პატარა ფართობის ზონა → ტოლი ფართობისას ანბანით ბოლო id. ხატვის რიგი და ლეიბლის პრიორიტეტი იმავე `rank`-ს მიჰყვება.
+8. **ზღვრები `zoneStyles.js`-ში და `interactions.js`-ში** (ქცევა და არა დიზაინი, ამიტომ ტოკენი არ არის): `LABEL_MIN_ZOOM = 9`, ცდომილება 2/8px. მარკერის ზღვარი ტოკენიდან გამოითვლება.
+9. **ლეიბლი „მხოლოდ საკმარის zoom-ზე“ წესს ერთი გამონაკლისი აქვს:** hover-ისა და არჩეული ზონის სახელი ყოველთვის ჩანს.
+10. **ნორმალიზაცია ფენაში:** ერთი id-ის რამდენიმე Feature ერთიანდება და Polygon მიიღება, ამიტომ 02 §4.5-ის წესი („ყოველთვის MultiPolygon“) აპისთვის სავალდებულო აღარ არის; ვალიდაციაში დარჩება თუ არა, ცალკე გადასაწყვეტია.
+11. **§10 ეტაპ 4-ის მე-8 პუნქტი (`MapContext`-ის არე) ისევ ღიაა:** ეტაპ 5-ს provider-ის გადატანა არ დასჭირვებია.
+
 ### იმპლემენტაციისას შესამოწმებელი
 - Netlify/Vercel კუმშავს თუ არა `.geo.json`-ს (ეტაპი 9).
-- `?url` import `.json` გაფართოებაზე hash-იან asset URL-ს აბრუნებს და ფაილს bundle-ში არ რთავს (ეტაპი 5, `dist/`-ის შემოწმებით). **ეტაპ 4-ზე შემოწმდა** სატესტო ფაილით: hash-იანი asset გამოდის და JS bundle-ში არ ხვდება. 4 KB-ზე პატარა ფაილს Vite `data:` URI-დ ჩასვამს (`assetsInlineLimit`); ამჟამინდელი placeholder ასეთია, ნამდვილი გეომეტრია არა.
+- `?url` import `.json` გაფართოებაზე hash-იან asset URL-ს აბრუნებს და ფაილს bundle-ში არ რთავს (ეტაპი 5, `dist/`-ის შემოწმებით). **ეტაპ 4-ზე შემოწმდა** სატესტო ფაილით: hash-იანი asset გამოდის და JS bundle-ში არ ხვდება. 4 KB-ზე პატარა ფაილს Vite `data:` URI-დ ჩასვამს (`assetsInlineLimit`); ამჟამინდელი placeholder ასეთია, ნამდვილი გეომეტრია არა. **ეტაპ 5:** `zones.geo.json`-ის placeholder-იც `data:` URI-დ ჩაისვა; ნამდვილი ფაილით `dist/`-ში ხელახლა სანახავია.
 
 ---
 
@@ -370,7 +387,8 @@ URL-ის წესები:
 |---|---|
 | ზონების ინდექსი | `zones.json`: ზონების ატრიბუტები და კავშირები გეომეტრიის გარეშე |
 | რუკის კონტროლერი | `createMap`-ის დაბრუნებული ობიექტი; React-იდან რუკაზე წვდომის ერთადერთი გზა |
-| სტილის მდგომარეობა | `zonesLayer`-ის `{ matchingIds, selectedId, hoveredId }`, რომელსაც style function კითხულობს |
+| სტილის მდგომარეობა | `zonesLayer`-ის `{ matchingIds, colorKeyById, selectedId, hoveredId, imagery }`, რომელსაც style function კითხულობს |
+| რანგი (`rank`) | ზონის რიგი ფართობით: 0 ყველაზე დიდია. განსაზღვრავს ხატვის რიგს, არჩევას გადაფარვაზე და ლეიბლის პრიორიტეტს (წინადადება, ეტაპი 5) |
 | მთვლელი | ფილტრის ვარიანტთან ნაჩვენები ზონების რაოდენობა |
 | კანონიკური URL | ფილტრის ერთადერთი ჩაწერის ფორმა: დალაგებული, დუბლიკატებისა და უცნობი slug-ების გარეშე |
 | წარმოებული მონაცემი | URL-იდან და ინდექსიდან გამოთვლილი, არსად შენახული (შესაბამისი ზონები, მთვლელები) |

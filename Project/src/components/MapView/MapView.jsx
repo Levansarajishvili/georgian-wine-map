@@ -1,12 +1,13 @@
 // src/components/MapView/MapView.jsx
 import { useEffect, useRef, useState } from 'react';
 import { ka } from '../../copy/ka';
-import { loadRegionGeometry } from '../../loaders/geometry';
+import { loadRegionGeometry, loadZoneGeometry } from '../../loaders/geometry';
 import { DEFAULT_BASEMAP_ID } from '../../map/basemaps';
 import { createMap } from '../../map/createMap';
 import BasemapSwitcher from '../BasemapSwitcher/BasemapSwitcher';
 import { MapContext } from './MapContext';
 import styles from './MapView.module.css';
+import { useZoneSelection } from './useZoneSelection';
 
 /**
  * The overlay's padding is the part of the map covered by edges and the
@@ -30,8 +31,10 @@ export default function MapView() {
   const attributionRef = useRef(null);
   const controllerRef = useRef(null);
 
-  // 'loading' | 'ready' | 'error': regions geometry, which also defines the initial view
-  const [status, setStatus] = useState('loading');
+  // 'loading' | 'ready' | 'error', per geometry file.
+  // Regions also define the initial view; zones are drawn on top when they arrive.
+  const [regionsStatus, setRegionsStatus] = useState('loading');
+  const [zonesStatus, setZonesStatus] = useState('loading');
   const [attempt, setAttempt] = useState(0);
 
   // Create the map once. StrictMode runs mount → cleanup → mount in dev:
@@ -52,6 +55,10 @@ export default function MapView() {
     };
   }, []);
 
+  // Must stay below the effect above: it needs the controller (see the hook).
+  // The selected id has no consumer in the DOM yet; the zone panel reads it in stage 7.
+  useZoneSelection(controllerRef);
+
   // Regions: add the features, then take the initial view from their extent.
   useEffect(() => {
     let cancelled = false;
@@ -65,12 +72,12 @@ export default function MapView() {
           padding: readPadding(overlayRef.current),
           animate: false,
         });
-        setStatus('ready');
+        setRegionsStatus('ready');
       })
       .catch((error) => {
         if (cancelled) return;
         console.error(error);
-        setStatus('error');
+        setRegionsStatus('error');
       });
 
     return () => {
@@ -78,10 +85,37 @@ export default function MapView() {
     };
   }, [attempt]);
 
+  // Zones: independent of the regions, so one failed file does not hide the other.
+  useEffect(() => {
+    let cancelled = false;
+
+    loadZoneGeometry()
+      .then(({ features }) => {
+        const controller = controllerRef.current;
+        if (cancelled || !controller) return;
+        controller.setFeatures({ zones: features });
+        setZonesStatus('ready');
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        console.error(error);
+        setZonesStatus('error');
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [attempt]);
+
+  // A file that has loaded is served from the loader's cache on the next attempt.
   const handleRetry = () => {
-    setStatus('loading');
+    if (regionsStatus === 'error') setRegionsStatus('loading');
+    if (zonesStatus === 'error') setZonesStatus('loading');
     setAttempt((count) => count + 1);
   };
+
+  const hasError = regionsStatus === 'error' || zonesStatus === 'error';
+  const isLoading = !hasError && (regionsStatus === 'loading' || zonesStatus === 'loading');
 
   return (
     <MapContext.Provider value={controllerRef}>
@@ -96,10 +130,11 @@ export default function MapView() {
           </div>
 
           <div className={styles.status} role="status">
-            {status === 'loading' && ka.map.loading}
-            {status === 'error' && (
+            {isLoading && ka.map.loading}
+            {hasError && (
               <>
-                <span>{ka.map.loadError}</span>
+                {regionsStatus === 'error' && <span>{ka.map.loadError}</span>}
+                {zonesStatus === 'error' && <span>{ka.map.zonesLoadError}</span>}
                 <button type="button" className={styles.retry} onClick={handleRetry}>
                   {ka.map.retry}
                 </button>

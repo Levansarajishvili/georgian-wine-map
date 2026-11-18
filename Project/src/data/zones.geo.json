@@ -1,0 +1,27 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "khvanchkara",
+      "properties": {},
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [[[0, 0], [0.001, 0], [0.001, 0.001], [0, 0.001], [0, 0]]]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "napareuli",
+      "properties": {},
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [[[0, 0], [0.001, 0], [0.001, 0.001], [0, 0.001], [0, 0]]]
+        ]
+      }
+    }
+  ]
+}

@@ -263,6 +263,19 @@
   --map-chip-bg: var(--color-surface-raised);
   --map-chip-line: var(--color-border);
   --map-chip-marker-radius: 4;
+  --map-chip-line-width: 0.75;         /* stage 5: chip border, as drawn on the palette board */
+  --map-chip-marker-line-width: 1;     /* stage 5: outline of the mini markers inside the chip */
+
+  /* Zone labels, drawn on the canvas at labelPoint (stage 5).
+     Ink text on a white halo: 14.5:1, independent of the basemap. */
+  --map-label-font-family: var(--font-family-sans);
+  --map-label-font-weight: var(--font-weight-medium);
+  --map-label-font-size: 14;                          /* CSS px, unitless like every map number */
+  --map-label-color: var(--color-text);
+  --map-label-color-dimmed: var(--color-text-muted);  /* 6.5:1 on the halo */
+  --map-label-halo: #FFFFFF;
+  --map-label-halo-width: 3;
+  --map-label-gap: 4;                                 /* label ↔ marker/chip, and declutter padding */
 
   /* Regions (ADM1) */
   --map-region-line: #575E66;      /* 5.1:1 on light basemap, 6.6:1 vs casing */
