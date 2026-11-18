@@ -1,5 +1,13 @@
 [
   {
+    "id": "osm-adm1",
+    "title": "OpenStreetMap: administrative boundaries, admin_level=4 (via Nominatim)",
+    "publisher": "OpenStreetMap contributors",
+    "url": "https://www.openstreetmap.org/copyright",
+    "accessed": "2026-11-18",
+    "license": "ODbL 1.0"
+  },
+  {
     "id": "placeholder",
     "title": "მონაცემი ჯერ არ არის — ჩანაცვლდება ჩატ 3-ში"
   },
