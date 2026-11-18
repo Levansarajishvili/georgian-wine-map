@@ -44,6 +44,12 @@
   line-height: var(--line-height-heading);
 }
 
+/* Panel content below the title. Mobile: hidden until the bottom sheet can be
+   opened (stage 8); display: none also takes it out of the tab order. */
+.panelBody {
+  display: none;
+}
+
 /* Desktop (--breakpoint-desktop) and landscape phones: two columns. */
 @media (min-width: 48rem), (orientation: landscape) and (max-height: 30rem) {
   .layout {
@@ -68,5 +74,10 @@
 
   .title {
     font-size: var(--font-size-2xl);
+  }
+
+  .panelBody {
+    display: block;
+    margin-top: var(--space-5);
   }
 }

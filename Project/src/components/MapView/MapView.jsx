@@ -4,6 +4,7 @@ import { ka } from '../../copy/ka';
 import { loadRegionGeometry, loadZoneGeometry } from '../../loaders/geometry';
 import { DEFAULT_BASEMAP_ID } from '../../map/basemaps';
 import { createMap } from '../../map/createMap';
+import { useUrlFilters } from '../../state/useUrlFilters';
 import BasemapSwitcher from '../BasemapSwitcher/BasemapSwitcher';
 import { MapContext } from './MapContext';
 import styles from './MapView.module.css';
@@ -37,6 +38,9 @@ export default function MapView() {
   const [zonesStatus, setZonesStatus] = useState('loading');
   const [attempt, setAttempt] = useState(0);
 
+  // Filter from the URL; `result` keeps its identity until the filter changes.
+  const { result: filterResult } = useUrlFilters();
+
   // Create the map once. StrictMode runs mount → cleanup → mount in dev:
   // cleanup destroys the first instance, so only one map exists at a time.
   useEffect(() => {
@@ -58,6 +62,19 @@ export default function MapView() {
   // Must stay below the effect above: it needs the controller (see the hook).
   // The selected id has no consumer in the DOM yet; the zone panel reads it in stage 7.
   useZoneSelection(controllerRef);
+
+  // Filter → zones layer. The layer keeps its features and only updates its
+  // style state, then calls layer.changed(): zones outside `matchingIds` are
+  // dimmed, matching zones take the colour of the selected style.
+  // Declared after the map effect, so under StrictMode it runs again for the
+  // second map instance. It does not wait for the geometry: the layer keeps
+  // the state and applies it to features that arrive later.
+  useEffect(() => {
+    controllerRef.current?.setZoneAppearance({
+      matchingIds: filterResult.matchingIds,
+      colorKeyById: filterResult.colorKeyById,
+    });
+  }, [filterResult]);
 
   // Regions: add the features, then take the initial view from their extent.
   useEffect(() => {
