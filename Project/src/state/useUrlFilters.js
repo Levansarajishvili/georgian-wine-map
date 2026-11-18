@@ -1,8 +1,9 @@
 // src/state/useUrlFilters.js
-import { useEffect, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useSyncExternalStore } from 'react';
 import {
   clearFilter,
   computeFilterResult,
+  createEmptyFilter,
   mergeFilterIntoSearch,
   parseFilterParams,
   serializeFilter,
@@ -81,6 +82,9 @@ function writeFilter(filter) {
   writeSearch(mergeFilterIntoSearch(readSearch(), filter));
 }
 
+/** A filter with exactly one option; the other dimension is empty. */
+const singleOptionFilter = (dimension, id) => ({ ...createEmptyFilter(), [dimension]: [id] });
+
 /**
  * Switches one option on or off.
  * @param {'style'|'grape'} dimension
@@ -99,16 +103,29 @@ function clear(dimension) {
 }
 
 /**
+ * Replaces the whole filter with one option (stage 7, the grape link in the
+ * zone panel): the other dimension is cleared, so a zone that has the option
+ * always matches and the result is never empty (context.md).
+ * @param {'style'|'grape'} dimension
+ * @param {string} id
+ */
+function setOnly(dimension, id) {
+  writeFilter(singleOptionFilter(dimension, id));
+}
+
+/**
  * Filter from the URL, what is derived from it, and the actions that change it.
  *
  * Any component may call this hook; all of them read the same URL and get the
- * same `filter` and `result` objects. `toggle` and `clear` are stable.
+ * same `filter` and `result` objects. `toggle`, `clear` and `setOnly` are stable.
  *
  * @returns {{
  *   filter: { style: string[], grape: string[] },
  *   result: ReturnType<typeof computeFilterResult>,
  *   toggle: (dimension: 'style'|'grape', id: string) => void,
  *   clear: (dimension?: 'style'|'grape') => void,
+ *   setOnly: (dimension: 'style'|'grape', id: string) => void,
+ *   hrefForOnly: (dimension: 'style'|'grape', id: string) => string,
  * }}
  */
 export function useUrlFilters() {
@@ -122,5 +139,12 @@ export function useUrlFilters() {
     if (canonical !== search.replace(/^\?/, '')) writeSearch(canonical);
   }, [search, filter]);
 
-  return { filter, result, toggle, clear };
+  // The address setOnly() would produce, for a real <a href>: the link then
+  // also works with "open in a new tab" and shows its target in the status bar.
+  const hrefForOnly = useCallback(
+    (dimension, id) => `?${mergeFilterIntoSearch(search, singleOptionFilter(dimension, id))}`,
+    [search],
+  );
+
+  return { filter, result, toggle, clear, setOnly, hrefForOnly };
 }

@@ -76,8 +76,11 @@
     font-size: var(--font-size-2xl);
   }
 
+  /* Sections of the panel (filter, region list) one under another. */
   .panelBody {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
     margin-top: var(--space-5);
   }
 }

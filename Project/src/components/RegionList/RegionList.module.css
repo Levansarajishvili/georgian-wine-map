@@ -1,0 +1,181 @@
+/* src/components/RegionList/RegionList.module.css
+   Every value is a token from styles/tokens.css.
+
+   Container-independent: no width, height, position or overflow on the root.
+   The host (desktop side panel now, mobile bottom sheet later) decides the
+   size, the padding around the list and the scrolling. */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+/* Off-screen but read by screen readers. */
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.header {
+  position: relative; /* anchors the visually hidden status line */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-heading);
+}
+
+.intro,
+.empty {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-body);
+}
+
+.regions,
+.zones {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ---------------------------------------------------------------
+ * Region: heading + button that fits the map to the region
+ * ------------------------------------------------------------- */
+.region {
+  padding-block: var(--space-2);
+  border-bottom: var(--border-width) solid var(--color-border-subtle);
+}
+
+.regionHeading {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-ui);
+}
+
+.regionButton,
+.zone {
+  position: relative; /* anchors visually hidden text and the selected bar */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: var(--size-control);
+  background: transparent;
+  color: var(--color-text);
+  border: 0;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-ui);
+  text-align: start;
+  cursor: pointer;
+  /* --motion-duration-fast drops to 1ms under prefers-reduced-motion (tokens.css). */
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+.regionButton {
+  padding: var(--space-1) var(--space-2);
+  font-weight: inherit;
+}
+
+.regionButton:hover,
+.zone:hover {
+  background: var(--color-surface-sunken);
+}
+
+.regionLabel {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.regionCount {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  font-variant-numeric: var(--font-numeric-tabular);
+  white-space: nowrap;
+}
+
+.regionIcon {
+  flex: none;
+  width: var(--size-icon);
+  height: var(--size-icon);
+  color: var(--color-text-muted);
+}
+
+.empty {
+  padding: var(--space-1) var(--space-2) var(--space-1) var(--space-4);
+}
+
+/* ---------------------------------------------------------------
+ * Zone row: name on the left, wine style signs on the right
+ * ------------------------------------------------------------- */
+.zone {
+  padding: var(--space-1) var(--space-2) var(--space-1) var(--space-4);
+}
+
+/* Selected: background, a bar and medium weight; aria-current carries it for screen readers. */
+.zone[aria-current="true"] {
+  background: var(--color-selected-bg);
+  font-weight: var(--font-weight-medium);
+}
+
+.zone[aria-current="true"]::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: var(--space-1);
+  background: var(--color-accent);
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+
+/* Does not match the filter: grey text and signs, plus a second line that says so. */
+.zoneDimmed {
+  color: var(--color-text-muted);
+}
+
+.zoneText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.zoneNote {
+  font-size: var(--font-size-sm);
+}
+
+.zoneStyles {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* Desktop and landscape phones: 36px controls (pointer is precise enough). */
+@media (min-width: 48rem), (orientation: landscape) and (max-height: 30rem) {
+  .regionButton,
+  .zone {
+    min-height: var(--size-control-sm);
+  }
+}

@@ -22,10 +22,13 @@ import { useCallback, useEffect, useState } from 'react';
  * (01 §5, `zone=` in the URL), only the useState line below is replaced; the
  * returned interface and both effects stay as they are.
  *
- * Call this hook AFTER the effect that creates the map: effects run in the
- * order they are declared, and these two need controllerRef.current. Under
- * StrictMode both run again for the second map instance, so the selection is
- * re-applied to it.
+ * Where to call it (stage 7): in the component that renders both the zone
+ * panel and MapView, i.e. App. Both effects need controllerRef.current, which
+ * MapView's own effect sets. React runs a child's effects before its
+ * parent's, so calling this hook in an ANCESTOR of MapView is enough; in
+ * MapView itself it would have to come after the effect that creates the map.
+ * Under StrictMode both effects run again for the second map instance, so the
+ * selection is re-applied to it.
  *
  * @param {{ current: ReturnType<typeof import('../../map/createMap').createMap>|null }} controllerRef
  * @returns {{ selectedId: string|null, select: (id: string|null) => void, clear: () => void }}

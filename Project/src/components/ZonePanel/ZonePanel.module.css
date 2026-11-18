@@ -1,0 +1,397 @@
+/* src/components/ZonePanel/ZonePanel.module.css
+   Every value is a token from styles/tokens.css.
+
+   Container-independent: no width, height, position or overflow on the root.
+   The host (desktop side panel now, mobile bottom sheet later) decides the
+   size, the padding around the panel and the scrolling. The atlas frame
+   (neatline) belongs to the panel itself and travels with it. */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-3);
+  border: var(--border-neatline);
+}
+
+/* Off-screen but read by screen readers. */
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------------------------------------------------------------
+ * Header: zone name, regions, close
+ * ------------------------------------------------------------- */
+.header {
+  position: relative; /* anchors visually hidden text */
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  border-radius: var(--radius-sm); /* shape of the focus ring when the host focuses it */
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-heading);
+  overflow-wrap: anywhere;
+}
+
+.regions {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-ui);
+}
+
+.close {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-control);
+  height: var(--size-control);
+  /* Optical alignment with the frame: the icon, not the button, meets the corner. */
+  margin: calc(var(--space-2) * -1) calc(var(--space-2) * -1) 0 0;
+  padding: 0;
+  background: transparent;
+  color: var(--color-text);
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  /* --motion-duration-fast drops to 1ms under prefers-reduced-motion (tokens.css). */
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+.close:hover {
+  background: var(--color-surface-sunken);
+}
+
+.close svg,
+.button svg,
+.grapeLink svg,
+.grapeCurrent svg {
+  flex: none;
+  width: var(--size-icon);
+  height: var(--size-icon);
+}
+
+/* ---------------------------------------------------------------
+ * "Unverified" signs. Three sizes of the same sign (see getVerification):
+ * notice (whole panel, or the boundary), tag (a section), mark (one item).
+ * The sign is the "?" shape plus text; no colour carries it.
+ * ------------------------------------------------------------- */
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface-sunken);
+  color: var(--color-text);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-body);
+}
+
+.noticeIcon {
+  flex: none;
+  width: var(--font-size-md);
+  height: var(--font-size-md);
+  margin-top: var(--space-1);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-ui);
+}
+
+.mark {
+  position: relative; /* anchors its visually hidden text */
+  display: inline-flex;
+  margin-inline-start: var(--space-1);
+  color: var(--color-text-muted);
+  vertical-align: middle;
+}
+
+.markIcon {
+  flex: none;
+  width: var(--font-size-md);
+  height: var(--font-size-md);
+}
+
+/* ---------------------------------------------------------------
+ * Description and placeholders for data that does not exist yet
+ * ------------------------------------------------------------- */
+.description {
+  margin: 0;
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-body);
+}
+
+.missing {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-body);
+}
+
+/* ---------------------------------------------------------------
+ * "Show on the map"
+ * ------------------------------------------------------------- */
+.mapAction {
+  position: relative; /* anchors the visually hidden status line */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--size-control);
+  padding: 0 var(--space-4);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-ui);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease-standard),
+    border-color var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+.button:hover {
+  background: var(--color-surface-sunken);
+  border-color: var(--color-border-strong);
+}
+
+/* ---------------------------------------------------------------
+ * Sections: wine style, grape, villages
+ * ------------------------------------------------------------- */
+.section {
+  position: relative; /* anchors visually hidden text */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.sectionHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-heading);
+}
+
+/* Term explanations and hints: secondary text, body line height (Mkhedruli). */
+.note {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-body);
+}
+
+.styleList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.styleItem {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+}
+
+.badgeRow {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+}
+
+/* Not interactive (05 §4.7): crisp corners, unlike the pill of a filter chip. */
+.badge {
+  position: relative; /* anchors its visually hidden text */
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-surface-raised);
+  border: var(--border-width) solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-ui);
+}
+
+/* The style is in the filter: thicker ink outline and medium weight, not a colour. */
+.badgeActive {
+  border: var(--border-width-strong) solid var(--color-border-strong);
+  font-weight: var(--font-weight-medium);
+}
+
+.grapeList {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--space-4);
+  /* Pulls the first item's padding back, so its icon lines up with the text above. */
+  margin: 0 0 0 calc(var(--space-1) * -1);
+  padding: 0;
+  list-style: none;
+}
+
+.grapeItem {
+  display: inline-flex;
+  align-items: center;
+}
+
+.grapeLink,
+.grapeCurrent {
+  position: relative; /* anchors visually hidden text */
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--size-control);
+  /* Room between the text and the focus ring. */
+  padding-inline: var(--space-1);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-ui);
+}
+
+.grapeLink {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-decoration-thickness: var(--border-width);
+  text-underline-offset: var(--space-1);
+}
+
+.grapeLink:hover {
+  color: var(--color-accent-hover);
+  text-decoration-thickness: var(--border-width-strong);
+}
+
+/* Already the only filter: a check mark and plain ink instead of a link. */
+.grapeCurrent {
+  color: var(--color-text);
+  font-weight: var(--font-weight-medium);
+}
+
+.villages {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-body);
+}
+
+.villages li {
+  display: inline;
+}
+
+/* ---------------------------------------------------------------
+ * Sources
+ * ------------------------------------------------------------- */
+.sources {
+  position: relative; /* anchors visually hidden text */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-top: var(--space-3);
+  border-top: var(--border-width) solid var(--color-border-subtle);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-body);
+}
+
+.sourcesLabel,
+.legend {
+  margin: 0;
+}
+
+.sourceList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sourceLink {
+  color: var(--color-accent);
+  border-radius: var(--radius-sm);
+  text-decoration: underline;
+  text-decoration-thickness: var(--border-width);
+  text-underline-offset: var(--space-1);
+  overflow-wrap: anywhere;
+}
+
+.sourceLink:hover {
+  color: var(--color-accent-hover);
+  text-decoration-thickness: var(--border-width-strong);
+}
+
+.sourceMeta {
+  display: block;
+}
+
+.legend {
+  margin-top: var(--space-2);
+}
+
+/* Desktop and landscape phones: 36px controls (pointer is precise enough). */
+@media (min-width: 48rem), (orientation: landscape) and (max-height: 30rem) {
+  .close {
+    width: var(--size-control-sm);
+    height: var(--size-control-sm);
+    margin: calc(var(--space-1) * -1) calc(var(--space-1) * -1) 0 0;
+  }
+
+  .button,
+  .grapeLink,
+  .grapeCurrent {
+    min-height: var(--size-control-sm);
+  }
+}

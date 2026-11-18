@@ -1,0 +1,19 @@
+/* src/components/StyleMarker/StyleMarker.module.css
+   Every value is a token from styles/tokens.css.
+   Wine style sign: the map marker's shape and colours (--map-zone-<slug>-*). */
+
+.marker {
+  flex: none;
+  width: calc(var(--map-marker-radius) * 2px);
+  height: calc(var(--map-marker-radius) * 2px);
+  fill: var(--marker-fill);
+  stroke: var(--marker-line);
+  stroke-width: var(--map-chip-marker-line-width);
+  stroke-linejoin: round;
+}
+
+/* Zone that does not match the filter: no hue, like the dimmed zone on the map. */
+.dimmed {
+  fill: var(--map-zone-dimmed-fill);
+  stroke: var(--map-zone-dimmed-line);
+}

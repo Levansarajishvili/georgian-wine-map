@@ -1,5 +1,5 @@
 // src/components/MapView/MapView.jsx
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { ka } from '../../copy/ka';
 import { loadRegionGeometry, loadZoneGeometry } from '../../loaders/geometry';
 import { DEFAULT_BASEMAP_ID } from '../../map/basemaps';
@@ -8,7 +8,6 @@ import { useUrlFilters } from '../../state/useUrlFilters';
 import BasemapSwitcher from '../BasemapSwitcher/BasemapSwitcher';
 import { MapContext } from './MapContext';
 import styles from './MapView.module.css';
-import { useZoneSelection } from './useZoneSelection';
 
 /**
  * The overlay's padding is the part of the map covered by edges and the
@@ -23,14 +22,22 @@ function readPadding(element) {
 
 /**
  * The only bridge between React and the map (map/createMap.js).
- * Owns the controller ref and provides it through MapContext.
+ *
+ * Creates and destroys the map controller and puts it into the ref that
+ * MapContext provides. The provider sits above MapView (in App), because the
+ * region list and the zone panel live in the side panel, outside this
+ * component, and need the same controller for "show on the map".
+ * Without a provider the context's default ref is used and the map still works.
+ *
+ * The selected zone is owned by whoever renders the zone panel (App, through
+ * useZoneSelection); MapView only connects the filter and the geometry.
  */
 export default function MapView() {
   const targetRef = useRef(null);
   const overlayRef = useRef(null);
   const zoomRef = useRef(null);
   const attributionRef = useRef(null);
-  const controllerRef = useRef(null);
+  const controllerRef = useContext(MapContext);
 
   // 'loading' | 'ready' | 'error', per geometry file.
   // Regions also define the initial view; zones are drawn on top when they arrive.
@@ -50,6 +57,9 @@ export default function MapView() {
       attributionTarget: attributionRef.current,
       labels: { zoomIn: ka.map.zoomIn, zoomOut: ka.map.zoomOut },
       basemapId: DEFAULT_BASEMAP_ID,
+      // Default padding of every fit, read when the fit happens: the bottom
+      // sheet changes --map-inset-bottom, and with it the overlay's padding.
+      getFitPadding: () => (overlayRef.current ? readPadding(overlayRef.current) : [0, 0, 0, 0]),
     });
     controllerRef.current = controller;
 
@@ -57,11 +67,7 @@ export default function MapView() {
       controller.destroy();
       controllerRef.current = null;
     };
-  }, []);
-
-  // Must stay below the effect above: it needs the controller (see the hook).
-  // The selected id has no consumer in the DOM yet; the zone panel reads it in stage 7.
-  useZoneSelection(controllerRef);
+  }, [controllerRef]);
 
   // Filter → zones layer. The layer keeps its features and only updates its
   // style state, then calls layer.changed(): zones outside `matchingIds` are
@@ -74,7 +80,7 @@ export default function MapView() {
       matchingIds: filterResult.matchingIds,
       colorKeyById: filterResult.colorKeyById,
     });
-  }, [filterResult]);
+  }, [controllerRef, filterResult]);
 
   // Regions: add the features, then take the initial view from their extent.
   useEffect(() => {
@@ -85,10 +91,7 @@ export default function MapView() {
         const controller = controllerRef.current;
         if (cancelled || !controller) return;
         controller.setFeatures({ regions: features });
-        controller.fitToExtent(extent, {
-          padding: readPadding(overlayRef.current),
-          animate: false,
-        });
+        controller.fitToExtent(extent, { animate: false });
         setRegionsStatus('ready');
       })
       .catch((error) => {
@@ -100,7 +103,7 @@ export default function MapView() {
     return () => {
       cancelled = true;
     };
-  }, [attempt]);
+  }, [controllerRef, attempt]);
 
   // Zones: independent of the regions, so one failed file does not hide the other.
   useEffect(() => {
@@ -122,7 +125,7 @@ export default function MapView() {
     return () => {
       cancelled = true;
     };
-  }, [attempt]);
+  }, [controllerRef, attempt]);
 
   // A file that has loaded is served from the loader's cache on the next attempt.
   const handleRetry = () => {
@@ -135,34 +138,32 @@ export default function MapView() {
   const isLoading = !hasError && (regionsStatus === 'loading' || zonesStatus === 'loading');
 
   return (
-    <MapContext.Provider value={controllerRef}>
-      <div className={styles.root}>
-        <div ref={targetRef} className={styles.canvas} />
+    <div className={styles.root}>
+      <div ref={targetRef} className={styles.canvas} />
 
-        <div ref={overlayRef} className={styles.overlay}>
-          <div className={styles.controls}>
-            <BasemapSwitcher />
-            {/* OpenLayers renders the zoom buttons into this element. */}
-            <div ref={zoomRef} />
-          </div>
-
-          <div className={styles.status} role="status">
-            {isLoading && ka.map.loading}
-            {hasError && (
-              <>
-                {regionsStatus === 'error' && <span>{ka.map.loadError}</span>}
-                {zonesStatus === 'error' && <span>{ka.map.zonesLoadError}</span>}
-                <button type="button" className={styles.retry} onClick={handleRetry}>
-                  {ka.map.retry}
-                </button>
-              </>
-            )}
-          </div>
-
-          {/* OpenLayers renders the attribution of the visible layers into this element. */}
-          <div ref={attributionRef} className={styles.attribution} />
+      <div ref={overlayRef} className={styles.overlay}>
+        <div className={styles.controls}>
+          <BasemapSwitcher />
+          {/* OpenLayers renders the zoom buttons into this element. */}
+          <div ref={zoomRef} />
         </div>
+
+        <div className={styles.status} role="status">
+          {isLoading && ka.map.loading}
+          {hasError && (
+            <>
+              {regionsStatus === 'error' && <span>{ka.map.loadError}</span>}
+              {zonesStatus === 'error' && <span>{ka.map.zonesLoadError}</span>}
+              <button type="button" className={styles.retry} onClick={handleRetry}>
+                {ka.map.retry}
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* OpenLayers renders the attribution of the visible layers into this element. */}
+        <div ref={attributionRef} className={styles.attribution} />
       </div>
-    </MapContext.Provider>
+    </div>
   );
 }

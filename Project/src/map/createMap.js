@@ -5,6 +5,7 @@ import Attribution from 'ol/control/Attribution';
 import Zoom from 'ol/control/Zoom';
 import { easeOut } from 'ol/easing';
 import { isEmpty } from 'ol/extent';
+import { transformExtent } from 'ol/proj';
 import { createBasemapLayers } from './basemaps';
 import { attachZoneInteractions } from './interactions';
 import { createRegionsLayer } from './layers/regionsLayer';
@@ -13,6 +14,8 @@ import { readMapTokens } from './styles/mapTokens';
 import { LABEL_MIN_ZOOM } from './styles/zoneStyles';
 
 const PROJECTION = 'EPSG:3857';
+// Attribute files store bbox and labelPoint in EPSG:4326 (02 §1).
+const DATA_PROJECTION = 'EPSG:4326';
 
 // Zoom limits. MIN: the whole country still fits a 320px-wide screen.
 // MAX: village level; basemaps with a lower provider limit are upscaled.
@@ -35,8 +38,18 @@ const Z_INDEX = { basemap: 0, regions: 10, zones: 20 };
  * @param {HTMLElement} options.attributionTarget container for the attribution
  * @param {{ zoomIn: string, zoomOut: string }} options.labels
  * @param {string} options.basemapId initially visible basemap
+ * @param {() => number[]} [options.getFitPadding] [top, right, bottom, left] in
+ *   CSS px: the part of the map covered by its edges and the bottom sheet.
+ *   Read on every fit, because the sheet changes it.
  */
-export function createMap({ target, zoomTarget, attributionTarget, labels, basemapId }) {
+export function createMap({
+  target,
+  zoomTarget,
+  attributionTarget,
+  labels,
+  basemapId,
+  getFitPadding = () => [0, 0, 0, 0],
+}) {
   const tokens = readMapTokens();
 
   const basemapLayers = createBasemapLayers(basemapId);
@@ -89,6 +102,26 @@ export function createMap({ target, zoomTarget, attributionTarget, labels, basem
     onZoneClick: (id) => zoneClickListeners.forEach((listener) => listener(id)),
   });
 
+  /**
+   * @param {import('ol/extent').Extent} extent in the view projection
+   * @param {object} [options]
+   * @param {number[]} [options.padding] [top, right, bottom, left] in CSS px;
+   *   default: getFitPadding()
+   * @param {boolean} [options.animate] default true. The duration is the
+   *   --motion-duration-map token, read on every call: under
+   *   prefers-reduced-motion it is 0 and the view jumps without animation.
+   */
+  function fitToExtent(extent, { padding = getFitPadding(), animate = true } = {}) {
+    if (!extent || isEmpty(extent)) return;
+    map.updateSize();
+    view.fit(extent, {
+      size: map.getSize(),
+      padding,
+      duration: animate ? readMapTokens().motion.mapDuration : 0,
+      easing: easeOut,
+    });
+  }
+
   return {
     /**
      * @param {object} features
@@ -135,21 +168,18 @@ export function createMap({ target, zoomTarget, attributionTarget, labels, basem
       return () => zoneClickListeners.delete(listener);
     },
 
+    fitToExtent,
+
     /**
-     * @param {import('ol/extent').Extent} extent in the view projection
-     * @param {object} [options]
-     * @param {number[]} [options.padding] [top, right, bottom, left] in CSS px
-     * @param {boolean} [options.animate]
+     * Fits the view to a `bbox` from regions.json or zones.json (02 §3):
+     * the DOM side of the app has no OpenLayers, so the reprojection is here.
+     *
+     * @param {number[]} bbox [minLon, minLat, maxLon, maxLat], EPSG:4326
+     * @param {object} [options] same as fitToExtent()
      */
-    fitToExtent(extent, { padding = [0, 0, 0, 0], animate = true } = {}) {
-      if (!extent || isEmpty(extent)) return;
-      map.updateSize();
-      view.fit(extent, {
-        size: map.getSize(),
-        padding,
-        duration: animate ? readMapTokens().motion.mapDuration : 0,
-        easing: easeOut,
-      });
+    fitToBBox(bbox, options) {
+      if (!Array.isArray(bbox) || bbox.length !== 4 || !bbox.every(Number.isFinite)) return;
+      fitToExtent(transformExtent(bbox, DATA_PROJECTION, PROJECTION), options);
     },
 
     destroy() {
