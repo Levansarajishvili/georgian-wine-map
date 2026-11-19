@@ -6,13 +6,19 @@ import XYZ from 'ol/source/XYZ';
  * Basemap configuration: the only place where XYZ sources are defined.
  *
  * `url` and `attribution` are pasted verbatim: light as given from the
- * geohowtos.com XYZ list, terrain and imagery from leaflet-providers 4.0.0
+ * geohowtos.com XYZ list, humanitarian as supplied by the project owner in
+ * the same format, terrain and imagery from leaflet-providers 4.0.0
  * (the list's own source; its {variant} placeholder is filled in).
+ * hybrid is also as supplied by the project owner: it is Google's internal
+ * tile endpoint, not a documented API, so it can stop working without notice
+ * and Google's terms do not allow this use (docs/06-data-sources.md §8).
  * Licences and usage conditions: docs/06-data-sources.md §8.
  * Never edit them to make a layer work: adapting a template to OpenLayers is
  * done by the optional fields below and by buildUrlOptions().
  *
- * id          'light' | 'terrain' | 'imagery' (label: copy/ka.js → basemap.names)
+ * id          'light' | 'humanitarian' | 'terrain' | 'imagery' | 'hybrid'
+ *             (label: copy/ka.js → basemap.names). 'imagery' and 'hybrid'
+ *             get denser zone fills: layers/zonesLayer.js → setBasemap.
  * url         XYZ template exactly as listed
  * attribution attribution exactly as listed (may contain HTML links)
  * subdomains  only when the template has Leaflet's {s}: the subdomain letters, e.g. 'abc'.
@@ -32,6 +38,14 @@ export const BASEMAPS = [
     key: null,
   },
   {
+    id: 'humanitarian',
+    url: 'https://{a-c}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by <a href="https://www.hotosm.org/" target="_blank">Humanitarian OpenStreetMap Team</a> hosted by <a href="https://openstreetmap.fr/" target="_blank">OpenStreetMap France</a>',
+    subdomains: null,
+    maxZoom: 19,
+    key: null,
+  },
+  {
     id: 'terrain',
     url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
     attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
@@ -45,6 +59,14 @@ export const BASEMAPS = [
     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
     subdomains: null,
     maxZoom: null,
+    key: null,
+  },
+  {
+    id: 'hybrid',
+    url: 'https://mt{0-3}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&hl=en',
+    attribution: 'Map data &copy;2026 Google',
+    subdomains: null,
+    maxZoom: 22,
     key: null,
   },
 ];

@@ -81,20 +81,24 @@
 | სლოტი | ფენა | ჩანაწერის წყარო | გასაღები / გადახდა | ლიცენზია და პირობები | სანდოობა |
 |---|---|---|---|---|---|
 | `light` | OpenStreetMap.de · `https://{a-c}.tile.openstreetmap.de/{z}/{x}/{y}.png` · maxZoom 18 | geohowtos-ის სია (შენი მოწოდებული ჩანაწერი) | არა / არა | tile-ები CC-BY-SA 2.0, მონაცემი ODbL. ოპერატორი FOSSGIS: მაღალი ტრაფიკის საიტებს გამოყენება არ შეუძლიათ; მასობრივი ჩამოტვირთვა აკრძალულია; აპს, რომელიც tile-ებს თავად ტვირთავს, წინასწარი თანხმობა სჭირდება. წყარო: `fossgis.de/arbeitsgruppen/osm-server/nutzungsbedingungen` | საშუალო: მოხალისეების სერვერია, SLA არ აქვს. ფერადი რუკაა და არა ნაცრისფერი ღია ფონი; წარწერები გერმანულად და ადგილობრივ ენაზეა |
+| `humanitarian` | Humanitarian (HOT) · `https://{a-c}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png` · maxZoom 19 | შენი მოწოდებული ჩანაწერი (დამატდა 2026-11-19) | არა / არა | მონაცემი ODbL; სტილი CC0 1.0 (რეპო დაარქივდა 2025 წლის მარტში, ფენას OSM France აგრძელებს). tile სერვერის გამოყენების პირობები და ლიმიტები გამოქვეყნებული ვერ მოიძებნა (wiki მხოლოდ rate limiting-ის არსებობას ახსენებს, რიცხვების გარეშე): **შესამოწმებელია** OpenStreetMap France-თან. წყარო: `wiki.openstreetmap.org/wiki/HOT_style`, `wiki.openstreetmap.org/wiki/FR:Serveurs/tile.openstreetmap.fr` (წაკითხულია 2026-11-19) | საშუალო: მოხალისეების სერვერია, SLA არ აქვს. ფერადი რუკაა, `light`-ზე უფრო მკრთალი ფერებით |
 | `terrain` | OpenTopoMap · `https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png` · subdomains `abc` · maxZoom 17 | leaflet-providers 4.0.0 (`OpenTopoMap`) | არა / არა | tile-ები CC-BY-SA 3.0; opentopomap.org ყოველთვის უნდა იყოს მითითებული; დიდი პროექტისთვის ავტორებთან დაკავშირება. წყარო: `wiki.openstreetmap.org/wiki/OpenTopoMap`, `opentopomap.org/about` | საშუალო: მოხალისეების სერვერია. ტოპოგრაფიული რუკაა (ჰორიზონტალები, გზები, წარწერები) და არა სუფთა რელიეფი |
-| `imagery` | Esri World Imagery · `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}` | leaflet-providers 4.0.0 (`Esri.WorldImagery`) | URL-ში გასაღები არ არის / არა | Esri Master Agreement და Terms of Use. **შესამოწმებელია პირველწყაროსთან:** OSM wiki-ს მიხედვით (esri-leaflet-ის პირობების მოკლე ვერსია) უფასო გამოყენებას სჭირდება უფასო ArcGIS developer ანგარიში, შემოსავლის გარეშე აპი და < 1 მლნ tile თვეში; Esri ითხოვს „Powered by Esri“-ს და მონაცემის წყაროების attribution-ს. წყარო: `wiki.openstreetmap.org/wiki/Esri`, `location.arcgis.com/help/licensing-and-attribution/`, `goto.arcgisonline.com/maps/World_Imagery` | მაღალი ხარისხი, მაგრამ პირობები ყველაზე მკაცრია სამიდან |
+| `imagery` | Esri World Imagery · `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}` | leaflet-providers 4.0.0 (`Esri.WorldImagery`) | URL-ში გასაღები არ არის / არა | Esri Master Agreement და Terms of Use. **შესამოწმებელია პირველწყაროსთან:** OSM wiki-ს მიხედვით (esri-leaflet-ის პირობების მოკლე ვერსია) უფასო გამოყენებას სჭირდება უფასო ArcGIS developer ანგარიში, შემოსავლის გარეშე აპი და < 1 მლნ tile თვეში; Esri ითხოვს „Powered by Esri“-ს და მონაცემის წყაროების attribution-ს. წყარო: `wiki.openstreetmap.org/wiki/Esri`, `location.arcgis.com/help/licensing-and-attribution/`, `goto.arcgisonline.com/maps/World_Imagery` | მაღალი ხარისხი; პირობები მკაცრია |
+| `hybrid` | Google-ის სატელიტი წარწერებით · `https://mt{0-3}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&hl=en` · maxZoom 22 | შენი მოწოდებული ჩანაწერი (დამატდა 2026-11-19, მფლობელის გადაწყვეტილებით) | URL-ში გასაღები არ არის / არა | **პირობებს არ შეესაბამება:** Google Maps Platform-ის პირობებით კონტენტი მხოლოდ დანიშნული API-ებით მიიღება, სერვისების გარეთ ამოღება აკრძალულია (იხ. „გამორიცხული“). ოფიციალური გზა (Map Tiles API) გასაღებს და billing-ს ითხოვს | დაბალი: შიდა მისამართია და არა დოკუმენტირებული API; შეიძლება გაფრთხილების გარეშე შეიცვალოს ან დაიბლოკოს. 2026-11-19-ს tile-ები იტვირთებოდა (200, `image/jpeg`). წარწერები ინგლისურადაა (`hl=en`) |
 
 ### attribution რუკაზე (უცვლელად, `basemaps.js`-იდან)
 
 - `light`: `&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors`
+- `humanitarian`: `&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by <a href="https://www.hotosm.org/" target="_blank">Humanitarian OpenStreetMap Team</a> hosted by <a href="https://openstreetmap.fr/" target="_blank">OpenStreetMap France</a>`
 - `terrain`: `Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)`
 - `imagery`: `Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community`
+- `hybrid`: `Map data &copy;2026 Google`
 
 ### გამორიცხული
 
 | ფენა | მიზეზი |
 |---|---|
-| Google Terrain პირდაპირი მისამართით (`mt{0-3}.google.com/vt/...`) | context.md-ის გადაწყვეტილება; Google Maps Platform-ის პირობებით კონტენტი მხოლოდ დანიშნული API-ებით მიიღება, სერვისების გარეთ ამოღება აკრძალულია. ოფიციალური გზა (Map Tiles API) გასაღებს და billing-ს ითხოვს |
+| Google Terrain პირდაპირი მისამართით (`mt{0-3}.google.com/vt/...`) | context.md-ის გადაწყვეტილება; Google Maps Platform-ის პირობებით კონტენტი მხოლოდ დანიშნული API-ებით მიიღება, სერვისების გარეთ ამოღება აკრძალულია. ოფიციალური გზა (Map Tiles API) გასაღებს და billing-ს ითხოვს. **გამონაკლისი (2026-11-19):** იმავე მისამართის `lyrs=y` (ჰიბრიდი) მფლობელის გადაწყვეტილებით დაემატა `hybrid` სლოტად; პირობების შეუსაბამობა ძალაში რჩება |
 | NASA GIBS (MODIS) | leaflet-providers-ში maxZoom 9-ია: ზონის დონეზე გამოუსადეგარია |
 
 ### ღია
@@ -102,4 +106,6 @@
 1. `light` სლოტი: რჩება თუ არა OpenStreetMap.de ნაცრისფერი ღია ფონის ნაცვლად და რა ეწერება გადამრთველში („ღია ფონი“ თუ „სტანდარტული“).
 2. Esri World Imagery: პირობების წაკითხვა პირველწყაროში და გადაწყვეტილება, აკმაყოფილებს თუ არა მოთხოვნას „გასაღებისა და გადახდის გარეშე“ (ანგარიშის პირობა). სერვისი ამჟამად სხვა copyright ტექსტს აბრუნებს (`Source: Esri, Vantor, Earthstar Geographics, and the GIS User Community`), ვიდრე სიის attribution-ია.
 3. geohowtos-ის სიასთან შედარება: OpenTopoMap (Terrain) და Esri World Imagery (Imagery) leaflet-providers-იდანაა აღებული, რადგან geohowtos-ის გვერდი ავტომატურად ვერ წაიკითხა.
-4. სამივე ფენა მოხალისეების ან მესამე მხარის სერვერია: გაშვებამდე (ეტაპი 9) ტრაფიკის შეფასება და სათადარიგო ვარიანტი.
+4. ხუთივე ფენა მოხალისეების ან მესამე მხარის სერვერია: გაშვებამდე (ეტაპი 9) ტრაფიკის შეფასება და სათადარიგო ვარიანტი.
+5. `humanitarian` (OpenStreetMap France): tile სერვერის გამოყენების პირობების მოძიება ან OSM France-თან დაზუსტება.
+6. `hybrid` (Google): რჩება თუ არა საჯარო ვერსიაში. პირობებს არ შეესაბამება; ალტერნატივაა Map Tiles API (გასაღები და billing) ან `imagery` სლოტი. attribution-ში წელი (`©2026`) ხელითაა ჩაწერილი და მოძველდება.

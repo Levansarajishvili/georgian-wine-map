@@ -36,7 +36,7 @@ npm run dev     # dev სერვერი: http://localhost:5173
 | `npm run build` | production build `dist/`-ში |
 | `npm run preview` | `dist/`-ის ნახვა ლოკალურად |
 
-API გასაღები და `.env` ფაილი არ სჭირდება: სამივე საბაზისო ფენა გასაღების გარეშე იტვირთება.
+API გასაღები და `.env` ფაილი არ სჭირდება: ხუთივე საბაზისო ფენა გასაღების გარეშე იტვირთება.
 
 ## ფილტრის ბმულები
 
@@ -120,10 +120,12 @@ Vercel-ის უფასო (Hobby) გეგმა პირადი, არ
 | ფენა | სერვისი | ლიცენზია და პირობები |
 |---|---|---|
 | ღია ფონი (ნაგულისხმევი) | OpenStreetMap.de (`tile.openstreetmap.de`), ოპერატორი FOSSGIS | tile-ები CC-BY-SA 2.0, მონაცემი ODbL. მაღალი ტრაფიკის საიტებს გამოყენება არ შეუძლიათ; აპს, რომელიც tile-ებს თავად ტვირთავს, წინასწარი თანხმობა სჭირდება |
+| ჰუმანიტარული | Humanitarian (HOT) სტილი (`tile.openstreetmap.fr/hot`), ჰოსტინგი OpenStreetMap France | მონაცემი ODbL; სტილი CC0 1.0. tile სერვერის გამოყენების პირობები გამოქვეყნებული ვერ მოიძებნა: **შესამოწმებელია** OpenStreetMap France-თან (დამატდა 2026-11-19) |
 | რელიეფი | OpenTopoMap (`tile.opentopomap.org`) | tile-ები CC-BY-SA 3.0; opentopomap.org ყოველთვის უნდა იყოს მითითებული; დიდი პროექტისთვის ავტორებთან დაკავშირება |
 | სატელიტი | Esri World Imagery (`server.arcgisonline.com`) | Esri Master Agreement და Terms of Use. პირობები პირველწყაროსთან **შესამოწმებელია** (უფასო ანგარიშის მოთხოვნა, „Powered by Esri“) |
+| ჰიბრიდი | Google-ის სატელიტი წარწერებით (`mt{0-3}.google.com/vt/lyrs=y`), პირდაპირი მისამართით | **პირობებს არ შეესაბამება:** Google Maps Platform-ის პირობებით კონტენტი მხოლოდ დანიშნული API-ებით მიიღება. დოკუმენტირებული API არ არის: შეიძლება გაფრთხილების გარეშე შეწყდეს ან დაიბლოკოს. დამატდა მფლობელის გადაწყვეტილებით 2026-11-19 |
 
-სამივე მოხალისეების ან მესამე მხარის სერვერია: გამოქვეყნებამდე საჭიროა ტრაფიკის შეფასება და სათადარიგო ვარიანტი.
+ხუთივე მოხალისეების ან მესამე მხარის სერვერია: გამოქვეყნებამდე საჭიროა ტრაფიკის შეფასება და სათადარიგო ვარიანტი.
 
 ## ლიცენზიები
 
@@ -138,8 +140,10 @@ Vercel-ის უფასო (Hobby) გეგმა პირადი, არ
 
 ```
 ღია ფონი   © OpenStreetMap contributors
+ჰუმანიტარული  © OpenStreetMap contributors, Tiles style by Humanitarian OpenStreetMap Team hosted by OpenStreetMap France
 რელიეფი    Map data: © OpenStreetMap contributors, SRTM | Map style: © OpenTopoMap (CC-BY-SA)
 სატელიტი   Tiles © Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community
+ჰიბრიდი    Map data ©2026 Google
 ```
 
 სხვა მონაცემები:

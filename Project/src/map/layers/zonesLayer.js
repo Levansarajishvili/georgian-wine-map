@@ -197,9 +197,12 @@ export function createZonesLayer(zoneTokens, { labelMaxResolution }) {
       return update('hoveredId', id ?? null);
     },
 
-    /** Fills are denser on satellite imagery. @param {string} basemapId */
+    /**
+     * Fills are denser on satellite imagery ('hybrid' is imagery with labels).
+     * @param {string} basemapId
+     */
     setBasemap(basemapId) {
-      return update('imagery', basemapId === 'imagery');
+      return update('imagery', basemapId === 'imagery' || basemapId === 'hybrid');
     },
 
     /**

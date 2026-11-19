@@ -71,8 +71,10 @@ export const ka = {
     button: 'საბაზისო რუკა',
     names: {
       light: 'ღია ფონი',
+      humanitarian: 'ჰუმანიტარული',
       terrain: 'რელიეფი',
       imagery: 'სატელიტი',
+      hybrid: 'ჰიბრიდი',
     },
   },
   filter: {

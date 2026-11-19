@@ -337,7 +337,7 @@ placeholder-ის გარეშე ვერსია, რომელიც 
 | `map.keyboard.noZones` | რუკაზე ზონა ჯერ არ არის. | 8 |
 | `sheet.expand`, `sheet.expandFull`, `sheet.collapse` | გაშლა; სრულად გაშლა; ჩაკეცვა | 8 (პირველი ორი: canvas) |
 | `basemap.button` | საბაზისო რუკა | 4 |
-| `basemap.names` | ღია ფონი; რელიეფი; სატელიტი | 4 |
+| `basemap.names` | ღია ფონი; ჰუმანიტარული; რელიეფი; სატელიტი; ჰიბრიდი | 4 |
 | `filter.title` | ფილტრი | 6 |
 | `filter.clear` | გასუფთავება | 6 (canvas) |
 | `filter.close` | დახურვა (მობილურზე ფილტრის პანელის ღილაკი) | 8 |
