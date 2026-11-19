@@ -136,15 +136,15 @@ input {
  * ------------------------------------------------------------- */
 .map-popup {
   position: relative;
-  padding: var(--space-3) var(--space-5);
+  padding: var(--space-2) var(--space-4);
   background: var(--color-surface-raised);
   color: var(--color-text);
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-popover);
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-popup);
   font-weight: var(--font-weight-medium);
-  line-height: var(--line-height-heading);
+  line-height: var(--line-height-ui);
   white-space: nowrap;
 }
 

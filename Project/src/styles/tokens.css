@@ -152,7 +152,7 @@
   --motion-duration-base: 200ms;   /* popovers, fades */
   --motion-duration-sheet: 280ms;  /* sheet snap */
   --motion-duration-map: 450ms;    /* fitToExtent; read by mapTokens.js */
-  --motion-duration-popup: 3s;     /* map popup rising into place (global.css); slow on purpose, owner's choice */
+  --motion-duration-popup: 300ms;  /* map popup rising into place (global.css) */
   --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --motion-ease-enter: cubic-bezier(0, 0, 0.2, 1);
   --motion-ease-exit: cubic-bezier(0.4, 0, 1, 1);
@@ -170,6 +170,7 @@
 
   --font-size-xs: 0.75rem;    /* 12px: attribution and scale bar only */
   --font-size-sm: 0.875rem;   /* 14px: secondary text, counters */
+  --font-size-popup: 0.9375rem; /* 15px: name in the map popup (owner's choice, between sm and md) */
   --font-size-md: 1rem;       /* 16px: body, controls; inputs must stay ≥ 16px (iOS zoom on focus) */
   --font-size-lg: 1.125rem;   /* 18px: section headings in the panel */
   --font-size-xl: 1.375rem;   /* 22px: zone name */
