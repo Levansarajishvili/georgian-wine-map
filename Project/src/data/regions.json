@@ -1,5 +1,65 @@
 [
   {
+    "id": "achara",
+    "name": { "ka": "აჭარა" },
+    "bbox": [41.54699, 41.43057, 42.60272, 41.91204],
+    "center": {
+      "name": { "ka": "ბათუმი" },
+      "point": [41.63601, 41.65095],
+      "source": "osm-places",
+      "verified": false,
+      "note": "Nominatim centre point of OSM relation 2009237 (ბათუმი, city). Read on 2026-11-19 directly from the Nominatim response. Not yet checked against OSM on the map."
+    },
+    "source": "osm-adm1",
+    "verified": false,
+    "note": "OSM relation 1995970 (name:ka „აჭარის ავტონომიური რესპუბლიკა“), full OSM detail (no simplification). name.ka is the short form given by the owner. Slug follows 02 §2. Geometry not yet checked against OSM on the map."
+  },
+  {
+    "id": "apkhazeti",
+    "name": { "ka": "აფხაზეთი" },
+    "bbox": [40.00669, 42.41143, 42.14037, 43.58643],
+    "center": {
+      "name": { "ka": "სოხუმი" },
+      "point": [41.01966, 43.00313],
+      "source": "osm-places",
+      "verified": false,
+      "note": "Nominatim centre point of OSM relation 2027324 (სოხუმი, city). Read on 2026-11-19 directly from the Nominatim response. Not yet checked against OSM on the map."
+    },
+    "source": "osm-adm1",
+    "verified": false,
+    "note": "OSM relation 3572912 (admin_level=4, name:ka „აფხაზეთის ავტონომიური რესპუბლიკა“; the unit in Georgian law, 8647 km²), full OSM detail (no simplification). The admin_level=3 relation 1152720 („აფხაზეთი“) is the occupied territory as a whole; how occupied territories are shown is still open (06 §4). name.ka is the short form given by the owner. Slug follows 02 §2. Geometry not yet checked against OSM on the map."
+  },
+  {
+    "id": "guria",
+    "name": { "ka": "გურია" },
+    "bbox": [41.70626, 41.78647, 42.67023, 42.16955],
+    "center": {
+      "name": { "ka": "ოზურგეთი" },
+      "point": [42.00593, 41.9231],
+      "source": "osm-places",
+      "verified": false,
+      "note": "Nominatim centre point of OSM relation 8374107 (ოზურგეთი, town). Read on 2026-11-19 directly from the Nominatim response. Not yet checked against OSM on the map."
+    },
+    "source": "osm-adm1",
+    "verified": false,
+    "note": "OSM relation 1995971 (name:ka „გურია“), full OSM detail (no simplification). Slug follows 02 §2. Geometry not yet checked against OSM on the map."
+  },
+  {
+    "id": "imereti",
+    "name": { "ka": "იმერეთი" },
+    "bbox": [42.21266, 41.80902, 43.82416, 42.5659],
+    "center": {
+      "name": { "ka": "ქუთაისი" },
+      "point": [42.70545, 42.27161],
+      "source": "osm-places",
+      "verified": false,
+      "note": "Nominatim centre point of OSM relation 2024547 (ქუთაისი, city). Read on 2026-11-19 directly from the Nominatim response. Of the two relations Nominatim returns for the name, this is the boundary=administrative one; the place=city relation 8742174 has its point at [42.66337, 42.25968], west of the city centre. Not yet checked against OSM on the map."
+    },
+    "source": "osm-adm1",
+    "verified": false,
+    "note": "OSM relation 17916470 (boundary=disputed, claimed_by=Georgia; de jure border, 6591 km²), full OSM detail (no simplification). The admin_level=4 relation 1997289 leaves out the occupied part. OSM name:ka is „იმერეთის მხარე“. Slug follows 02 §2. Geometry not yet checked against OSM on the map."
+  },
+  {
     "id": "kakheti",
     "name": { "ka": "კახეთი" },
     "bbox": [45.02585, 41.05513, 46.73654, 42.57397],
@@ -15,6 +75,36 @@
     "note": "OSM relation 2000091 (name:ka „კახეთის მხარე“), full OSM detail (no simplification). Slug follows 02 §2. Geometry not yet checked against OSM on the map."
   },
   {
+    "id": "kvemo-kartli",
+    "name": { "ka": "ქვემო ქართლი" },
+    "bbox": [43.67204, 41.16479, 45.3079, 41.86099],
+    "center": {
+      "name": { "ka": "რუსთავი" },
+      "point": [45.01496, 41.54668],
+      "source": "osm-places",
+      "verified": false,
+      "note": "Nominatim centre point of OSM relation 1997305 (რუსთავი, city). Read on 2026-11-19 directly from the Nominatim response. Of the two relations Nominatim returns for the name, this is the boundary=administrative one; the place=city relation 5997314 has its point at [45.01128, 41.54309]. Not yet checked against OSM on the map."
+    },
+    "source": "osm-adm1",
+    "verified": false,
+    "note": "OSM relation 2000092 (name:ka „ქვემო ქართლი“), full OSM detail (no simplification). Slug follows 02 §2. Geometry not yet checked against OSM on the map."
+  },
+  {
+    "id": "mtskheta-mtianeti",
+    "name": { "ka": "მცხეთა-მთიანეთი" },
+    "bbox": [44.22499, 41.69141, 45.30968, 42.76639],
+    "center": {
+      "name": { "ka": "მცხეთა" },
+      "point": [44.71956, 41.8463],
+      "source": "osm-places",
+      "verified": false,
+      "note": "Nominatim centre point of OSM relation 8374155 (მცხეთა, town). Read on 2026-11-19 directly from the Nominatim response. Not yet checked against OSM on the map."
+    },
+    "source": "osm-adm1",
+    "verified": false,
+    "note": "OSM relation 17916468 (boundary=disputed, claimed_by=Georgia; de jure border, 6640 km²), full OSM detail (no simplification). The admin_level=4 relation 2000090 leaves out the occupied part. Slug follows 02 §2. Geometry not yet checked against OSM on the map."
+  },
+  {
     "id": "racha-lechkhumi-da-kvemo-svaneti",
     "name": { "ka": "რაჭა-ლეჩხუმი და ქვემო სვანეთი" },
     "bbox": [42.35664, 42.36856, 43.94697, 42.96882],
@@ -28,5 +118,65 @@
     "source": "osm-adm1",
     "verified": false,
     "note": "OSM relation 17916471 (boundary=disputed, claimed_by=Georgia; de jure border, 5039 km²), full OSM detail (no simplification). The admin_level=4 relation 1997284 leaves out the occupied part (~360 km²). Slug is the mechanical 02 §2 result; confirm before publishing."
+  },
+  {
+    "id": "samegrelo-zemo-svaneti",
+    "name": { "ka": "სამეგრელო-ზემო სვანეთი" },
+    "bbox": [41.55009, 42.06858, 43.14623, 43.25698],
+    "center": {
+      "name": { "ka": "ზუგდიდი" },
+      "point": [41.87169, 42.50721],
+      "source": "osm-places",
+      "verified": false,
+      "note": "Nominatim centre point of OSM relation 8374200 (ზუგდიდი, city). Read on 2026-11-19 directly from the Nominatim response. Not yet checked against OSM on the map."
+    },
+    "source": "osm-adm1",
+    "verified": false,
+    "note": "OSM relation 1996076 (name:ka „სამეგრელო-ზემო სვანეთი“), full OSM detail (no simplification). Slug follows 02 §2. Geometry not yet checked against OSM on the map."
+  },
+  {
+    "id": "samtskhe-javakheti",
+    "name": { "ka": "სამცხე-ჯავახეთი" },
+    "bbox": [42.49199, 41.10933, 43.96659, 41.95009],
+    "center": {
+      "name": { "ka": "ახალციხე" },
+      "point": [42.9859, 41.63957],
+      "source": "osm-places",
+      "verified": false,
+      "note": "Nominatim centre point of OSM relation 8374207 (ახალციხე, town). Read on 2026-11-19 directly from the Nominatim response. Not yet checked against OSM on the map."
+    },
+    "source": "osm-adm1",
+    "verified": false,
+    "note": "OSM relation 1996031 (name:ka „სამცხე-ჯავახეთი“), full OSM detail (no simplification). Slug follows 02 §2. Geometry not yet checked against OSM on the map."
+  },
+  {
+    "id": "shida-kartli",
+    "name": { "ka": "შიდა ქართლი" },
+    "bbox": [43.43425, 41.73517, 44.57391, 42.63538],
+    "center": {
+      "name": { "ka": "გორი" },
+      "point": [44.11178, 41.98185],
+      "source": "osm-places",
+      "verified": false,
+      "note": "Nominatim centre point of OSM relation 8374250 (გორი, city). Read on 2026-11-19 directly from the Nominatim response. Not yet checked against OSM on the map."
+    },
+    "source": "osm-adm1",
+    "verified": false,
+    "note": "OSM relation 17916469 (boundary=disputed, claimed_by=Georgia; de jure border, 5671 km²), full OSM detail (no simplification). The admin_level=4 relation 2000040 leaves out the occupied part. Slug follows 02 §2. Geometry not yet checked against OSM on the map."
+  },
+  {
+    "id": "tbilisi",
+    "name": { "ka": "თბილისი" },
+    "bbox": [44.5962, 41.61779, 45.01729, 41.84388],
+    "center": {
+      "name": { "ka": "თბილისი" },
+      "point": [44.80145, 41.69346],
+      "source": "osm-places",
+      "verified": false,
+      "note": "Nominatim centre point of OSM relation 1996871 (თბილისი, city). Read on 2026-11-19 directly from the Nominatim response. The same relation as the region: Tbilisi is both the unit and its centre. Not yet checked against OSM on the map."
+    },
+    "source": "osm-adm1",
+    "verified": false,
+    "note": "OSM relation 1996871 (name:ka „თბილისი“), full OSM detail (no simplification). Slug follows 02 §2. Geometry not yet checked against OSM on the map."
   }
 ]
