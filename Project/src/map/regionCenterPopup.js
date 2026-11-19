@@ -4,6 +4,10 @@ import Overlay from 'ol/Overlay';
 /** Class of the name plate; its look is in styles/global.css. */
 const PLATE_CLASS = 'map-popup';
 
+/** The two lines of the plate: the town, and below it the region. */
+const NAME_CLASS = 'map-popup-name';
+const REGION_CLASS = 'map-popup-region';
+
 /** Starts the opening animation of the plate (global.css). */
 const ENTERING_CLASS = 'map-popup-entering';
 
@@ -11,8 +15,9 @@ const ENTERING_CLASS = 'map-popup-entering';
 const PAN_MARGIN_PX = 12;
 
 /**
- * Popup of a regional centre: a small plate with the name of the town, above
- * its pin. One popup for the whole map: opening it for another centre moves it.
+ * Popup of a regional centre: a small plate above its pin with the name of
+ * the town and, below it, the name of the region the town is the centre of.
+ * One popup for the whole map: opening it for another centre moves it.
  *
  * It is a DOM element that OpenLayers keeps over the pin (ol/Overlay), not
  * something drawn on the canvas, so the text is real text. React does not
@@ -27,6 +32,12 @@ const PAN_MARGIN_PX = 12;
 export function createRegionCenterPopup({ tokens, getPanDuration }) {
   const plate = document.createElement('div');
   plate.className = PLATE_CLASS;
+  const [nameLine, regionLine] = [NAME_CLASS, REGION_CLASS].map((className) => {
+    const line = document.createElement('span');
+    line.className = className;
+    plate.append(line);
+    return line;
+  });
 
   const overlay = new Overlay({
     element: plate,
@@ -57,7 +68,7 @@ export function createRegionCenterPopup({ tokens, getPanDuration }) {
      *   the pin it is on   closes it;
      *   anything else      (null) closes it.
      *
-     * @param {{ id: string, name: string, coordinate: number[] }|null} center
+     * @param {{ id: string, name: string, regionName: string, coordinate: number[] }|null} center
      *   from regionCentersLayer.pickAt()
      */
     toggle(center) {
@@ -69,7 +80,8 @@ export function createRegionCenterPopup({ tokens, getPanDuration }) {
       // Without the class the plate is in its final place: that is the box
       // panIntoView has to measure, not the one the animation starts from.
       plate.classList.remove(ENTERING_CLASS);
-      plate.textContent = center.name;
+      nameLine.textContent = center.name;
+      regionLine.textContent = center.regionName;
       overlay.setPosition(center.coordinate);
       // A pin near the edge: move the map just enough to show the whole plate.
       overlay.panIntoView({

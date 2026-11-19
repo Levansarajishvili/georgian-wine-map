@@ -117,7 +117,7 @@ export function attachZoneInteractions(
  * @param {import('ol/Map').default} map
  * @param {ReturnType<typeof import('./layers/regionCentersLayer').createRegionCentersLayer>} centers
  * @param {object} handlers
- * @param {(center: { id: string, name: string, coordinate: number[] }|null) => void} handlers.onCenterClick
+ * @param {(center: { id: string, name: string, regionName: string, coordinate: number[] }|null) => void} handlers.onCenterClick
  * @returns {{ detach: () => void, pickAt: (coordinate: number[], tolerancePx: number) => object|null }}
  */
 export function attachRegionCenterClick(map, centers, { onCenterClick }) {

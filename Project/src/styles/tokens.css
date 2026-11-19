@@ -152,7 +152,7 @@
   --motion-duration-base: 200ms;   /* popovers, fades */
   --motion-duration-sheet: 280ms;  /* sheet snap */
   --motion-duration-map: 450ms;    /* fitToExtent; read by mapTokens.js */
-  --motion-duration-popup: 300ms;  /* map popup rising into place (global.css) */
+  --motion-duration-popup: 2s;     /* map popup rising into place (global.css); owner's choice, was 300ms */
   --motion-duration-wall: 300ms;   /* wall of the hovered region rising and sinking (global.css) */
   --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --motion-ease-enter: cubic-bezier(0, 0, 0.2, 1);

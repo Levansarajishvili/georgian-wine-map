@@ -8,8 +8,8 @@ import { createRegionCenterStyle } from '../styles/regionCenterStyle';
  * pin per centre, drawn above the zones so a zone fill never covers it.
  *
  * The pins are permanent and the layer has no style state: a pin looks the
- * same whatever happens. A click on a pin opens the popup with the name of
- * the town (regionCenterPopup); pickAt() says which pin was hit.
+ * same whatever happens. A click on a pin opens the popup with the names of
+ * the town and of its region (regionCenterPopup); pickAt() says which pin was hit.
  *
  * @param {object} regionCenterTokens mapTokens.regionCenter
  */
@@ -44,7 +44,8 @@ export function createRegionCentersLayer(regionCenterTokens) {
      * @param {import('ol/coordinate').Coordinate} coordinate in the view projection
      * @param {number} resolution current view resolution
      * @param {number} [tolerancePx] extra reach for imprecise pointers
-     * @returns {{ id: string, name: string, coordinate: number[] }|null}
+     * @returns {{ id: string, name: string, regionName: string, coordinate: number[] }|null}
+     *   `name` is the town, `regionName` the region it is the centre of;
      *   `coordinate` is the centre's own point (the tip of the pin)
      */
     pickAt(coordinate, resolution, tolerancePx = 0) {
@@ -62,11 +63,18 @@ export function createRegionCentersLayer(regionCenterTokens) {
 
         const distance = Math.hypot(right, up - (height - radius));
         if (!best || distance < best.distance) {
-          best = { id: feature.getId(), name: feature.get('name'), coordinate: point, distance };
+          best = { feature, coordinate: point, distance };
         }
       });
 
-      return best && { id: best.id, name: best.name, coordinate: best.coordinate };
+      return (
+        best && {
+          id: best.feature.getId(),
+          name: best.feature.get('name'),
+          regionName: best.feature.get('regionName'),
+          coordinate: best.coordinate,
+        }
+      );
     },
   };
 }

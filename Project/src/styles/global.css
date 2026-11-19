@@ -217,8 +217,9 @@ input {
 }
 
 /* ---------------------------------------------------------------
- * Map popup: the name of a regional centre, opened by a click on its
- * pin (map/regionCenterPopup.js). OpenLayers keeps the plate centred
+ * Map popup: the name of a regional centre and, on a second line,
+ * the name of its region; opened by a click on the centre's pin
+ * (map/regionCenterPopup.js). OpenLayers keeps the plate centred
  * above the pin; the tail points at it.
  *
  * Opening: the plate rises from below and fades in over
@@ -239,7 +240,22 @@ input {
   font-size: var(--font-size-popup);
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-ui);
+  text-align: center;
   white-space: nowrap;
+}
+
+/* The town is what the pin marks, so it leads; the region is the quieter
+   second line. Weight and size carry the difference, the muted colour only
+   adds to it (6.2:1 on the plate). */
+.map-popup-name,
+.map-popup-region {
+  display: block;
+}
+
+.map-popup-region {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
 }
 
 .map-popup-entering {

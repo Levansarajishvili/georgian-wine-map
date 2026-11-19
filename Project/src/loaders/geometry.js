@@ -85,7 +85,8 @@ export function loadZoneGeometry() {
 /**
  * Administrative centres of the regions (regions.json `center`), as Point
  * features in EPSG:3857 for the pins of the map. Feature.id is the region's
- * id; `name` is the name of the town.
+ * id; `name` is the name of the town and `regionName` the name of the region
+ * it is the centre of (both are shown in the popup of the pin).
  *
  * Synchronous: the points are in the attribute file, not in a geometry file
  * (there is one point per region). A region without `center` gets no pin.
@@ -100,6 +101,7 @@ export function createRegionCenterFeatures() {
       const feature = new Feature({
         geometry: new Point(fromLonLat(region.center.point)),
         name: region.center.name.ka,
+        regionName: region.name.ka,
       });
       feature.setId(region.id);
       return feature;
