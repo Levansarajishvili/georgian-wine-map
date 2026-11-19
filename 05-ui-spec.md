@@ -251,7 +251,7 @@ sheet თავის სიმაღლეს `--map-inset-bottom`-ით ა�
 
 ### 4.10 საბაზისო რუკის გადამრთველი [D][K]
 
-რუკის კონტროლი (`aria-label` „საბაზისო რუკა“, `aria-expanded`) + popover: `fieldset`, `legend` „საბაზისო რუკა“, სამი radio. არჩეული `--font-weight-medium`; hover-ის სტრიქონი `--color-surface-sunken`.
+რუკის კონტროლი (`aria-label` „საბაზისო რუკა“, `aria-expanded`) + popover: `fieldset`, `legend` „საბაზისო რუკა“, სამი radio [D]. კოდში ხუთი radio-ა `BASEMAPS`-იდან; გვერდის გახსნისას მონიშნულია „ჰიბრიდი“ (`DEFAULT_BASEMAP_ID`, 2026-11-19-დან; მანამდე „ღია ფონი“) [K]. არჩეული `--font-weight-medium`; hover-ის სტრიქონი `--color-surface-sunken`.
 
 ### 4.11 „გადასამოწმებელი“ ნიშანი [K] (ეტაპი 7; canvas-ზე არ არის)
 
