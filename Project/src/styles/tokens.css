@@ -283,6 +283,12 @@
   --map-region-line-dash: 6 4;
   --map-region-casing: #FFFFFF;
   --map-region-casing-width: 3.5;
+  /* Hover (mouse over the region): the same outline made prominent. A solid ink
+     line instead of the dashed grey one, on a wider casing; the width and the
+     missing dash are the non-colour signal. */
+  --map-region-line-hover: var(--color-text);  /* 14.5:1 vs casing */
+  --map-region-line-width-hover: 2.5;
+  --map-region-casing-width-hover: 7;
   /* Special-status regions: tokens added in chat 3, once the display rule exists. */
 }
 

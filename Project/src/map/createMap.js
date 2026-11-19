@@ -10,7 +10,7 @@ import KeyboardPan from 'ol/interaction/KeyboardPan';
 import { defaults as defaultInteractions } from 'ol/interaction/defaults';
 import { transformExtent } from 'ol/proj';
 import { createBasemapLayers } from './basemaps';
-import { attachZoneInteractions } from './interactions';
+import { attachRegionHover, attachZoneInteractions } from './interactions';
 import { createRegionsLayer } from './layers/regionsLayer';
 import { createZonesLayer } from './layers/zonesLayer';
 import { readMapTokens } from './styles/mapTokens';
@@ -174,6 +174,7 @@ export function createMap({
     onZoneClick: (id) => zoneClickListeners.forEach((listener) => listener(id)),
     getHighlightedId: () => highlightedId,
   });
+  const detachRegionHover = attachRegionHover(map, regions);
 
   // The setting changed while the page is open (or DevTools emulates it):
   // rebuild what was created with the old value. The view keeps its place.
@@ -333,6 +334,7 @@ export function createMap({
     destroy() {
       motionQuery.removeEventListener('change', handleMotionChange);
       zoneInteractions.detach();
+      detachRegionHover();
       zoneClickListeners.clear();
       map.setTarget(undefined);
       // Controls live in their own targets; dispose() removes their elements too.

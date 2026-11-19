@@ -90,3 +90,51 @@ export function attachZoneInteractions(map, zones, { onZoneClick, getHighlighted
     refreshHover: applyHover,
   };
 }
+
+/**
+ * Hover of the regions layer: the region under the mouse gets a prominent
+ * outline (regionStyle).
+ *
+ * Like the zone hover it only changes the layer's style state and never
+ * reaches React, and it is mouse only. A zone inside the region does not
+ * interrupt it: the mouse is still in the region. The cursor is left alone,
+ * because a region cannot be clicked on the map.
+ *
+ * @param {import('ol/Map').default} map
+ * @param {ReturnType<typeof import('./layers/regionsLayer').createRegionsLayer>} regions
+ * @returns {() => void} detach
+ */
+export function attachRegionHover(map, regions) {
+  const viewport = map.getViewport();
+  /** Last mouse position in CSS px, or null while the mouse is outside the map. */
+  let mousePixel = null;
+
+  const updateHover = () => {
+    const coordinate = mousePixel ? map.getCoordinateFromPixel(mousePixel) : null;
+    regions.setHovered(coordinate ? regions.pickAt(coordinate) : null);
+  };
+
+  const handlePointerMove = (event) => {
+    if (event.originalEvent?.pointerType !== 'mouse') return;
+    mousePixel = event.pixel;
+    // Same rule as the zones: while dragging, wait for moveend.
+    if (!event.dragging) updateHover();
+  };
+
+  const handlePointerLeave = () => {
+    mousePixel = null;
+    updateHover();
+  };
+
+  map.on('pointermove', handlePointerMove);
+  // Panning or zooming under a resting mouse changes what is below it.
+  map.on('moveend', updateHover);
+  viewport.addEventListener('pointerleave', handlePointerLeave);
+
+  return () => {
+    map.un('pointermove', handlePointerMove);
+    map.un('moveend', updateHover);
+    viewport.removeEventListener('pointerleave', handlePointerLeave);
+    regions.setHovered(null);
+  };
+}
