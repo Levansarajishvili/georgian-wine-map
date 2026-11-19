@@ -71,7 +71,7 @@ export const BASEMAPS = [
   },
 ];
 
-export const DEFAULT_BASEMAP_ID = 'light';
+export const DEFAULT_BASEMAP_ID = 'hybrid';
 
 function isConfigured(basemap) {
   return /^https?:\/\//.test(basemap.url);
