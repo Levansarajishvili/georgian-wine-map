@@ -130,6 +130,8 @@ function createPatternFill(styleTokens, patternTokens, pixelRatio) {
   if (styleTokens.pattern === 'hatch') {
     context.strokeStyle = styleTokens.patternInk ?? styleTokens.line;
     context.lineWidth = patternTokens.lineWidth * pixelRatio;
+    // See-through like the fill under it: the basemap stays readable.
+    context.globalAlpha = patternTokens.hatchOpacity;
     context.beginPath();
     context.moveTo(size / 2, 0);
     context.lineTo(size / 2, size);

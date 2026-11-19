@@ -1,6 +1,7 @@
 // src/components/ZonePanel/ZonePanel.jsx
 import { useContext, useEffect, useId, useRef, useState } from 'react';
 import { ka } from '../../copy/ka';
+import { PLACEHOLDER_SOURCE, getZoneMapTarget, hasZoneBoundary } from '../../domain/zoneMapTarget';
 import {
   grapesById,
   regionsById,
@@ -12,9 +13,6 @@ import { useUrlFilters } from '../../state/useUrlFilters';
 import { MapContext } from '../MapView/MapContext';
 import StyleMarker from '../StyleMarker/StyleMarker';
 import styles from './ZonePanel.module.css';
-
-/** sources.json id of a record that has no data yet (02 §4.1). */
-const PLACEHOLDER_SOURCE = 'placeholder';
 
 /** zone.boundary.method of a boundary computed from village points (06 §5). */
 const APPROXIMATE_METHOD = 'village-voronoi';
@@ -64,9 +62,18 @@ function getVerification(zone) {
   };
 }
 
-/** One line about the zone's outline on the map, or null when it is verified. */
-function getBoundaryNote(boundary) {
-  if (!boundary || boundary.source === PLACEHOLDER_SOURCE) return ka.zone.boundary.missing;
+/**
+ * A line or two about the zone's outline on the map, or null when it is
+ * verified. Without an outline the note also says what "show on the map"
+ * shows instead: the zone's region (`mapTarget`, getZoneMapTarget).
+ */
+function getBoundaryNote(zone, mapTarget) {
+  const { boundary } = zone;
+  if (!hasZoneBoundary(zone)) {
+    return mapTarget?.kind === 'regions'
+      ? `${ka.zone.boundary.missing} ${ka.zone.boundary.showsRegion(mapTarget.regionNames)}`
+      : ka.zone.boundary.missing;
+  }
   if (boundary.method === APPROXIMATE_METHOD) return ka.zone.boundary.approximate;
   return boundary.verified ? null : ka.zone.boundary.unverified;
 }
@@ -176,7 +183,10 @@ export default function ZonePanel({ zoneId, onClose, onShowOnMap, headingRef, he
   const boundaryNoteId = `${baseId}-boundary`;
 
   const verification = getVerification(zone);
-  const boundaryNote = getBoundaryNote(zone.boundary);
+  // What "show on the map" fits the map to: the zone, or its region while
+  // the zone has no outline (its own bbox is then a placeholder at (0, 0)).
+  const mapTarget = getZoneMapTarget(zone, regionsById);
+  const boundaryNote = getBoundaryNote(zone, mapTarget);
   const sources = getSources(zone);
   const description = zone.description?.text?.ka;
 
@@ -203,9 +213,9 @@ export default function ZonePanel({ zoneId, onClose, onShowOnMap, headingRef, he
 
   const handleShowOnMap = () => {
     const controller = controllerRef.current;
-    if (!controller) return;
+    if (!controller || !mapTarget) return;
     // Animated; without animation under prefers-reduced-motion (createMap.fitToExtent).
-    controller.fitToBBox(zone.bbox);
+    controller.fitToBBox(mapTarget.bbox);
     setShownZoneId(zone.id);
     onShowOnMap?.();
   };
@@ -297,7 +307,11 @@ export default function ZonePanel({ zoneId, onClose, onShowOnMap, headingRef, he
         )}
         {/* The map moves without any change in the DOM; this line says it happened. */}
         <p className={styles.visuallyHidden} role="status">
-          {shownZoneId === zone.id ? ka.map.shownOnMap(zone.name.ka) : ''}
+          {shownZoneId === zone.id && mapTarget
+            ? ka.map.shownOnMap(
+                mapTarget.kind === 'zone' ? zone.name.ka : mapTarget.regionNames.join(', '),
+              )
+            : ''}
         </p>
       </div>
 

@@ -113,6 +113,7 @@ export function readMapTokens(element = document.documentElement) {
       pattern: {
         spacing: read.number('--map-pattern-spacing'),
         lineWidth: read.number('--map-pattern-line-width'),
+        hatchOpacity: read.number('--map-pattern-hatch-opacity'),
         bubbleRadius: read.number('--map-pattern-bubble-radius'),
         bubbleRingWidth: read.number('--map-pattern-bubble-ring-width'),
       },

@@ -41,9 +41,9 @@
       {"id": "ambrolauri-khimshi", "name": {"ka": "ხიმში"}, "source": "sakpatenti-khvanchkara", "verified": true},
       {"id": "ambrolauri-abanoeti", "name": {"ka": "აბანოეთი"}, "source": "sakpatenti-khvanchkara", "verified": true}
     ],
-    "boundary": {"source": "placeholder", "verified": false},
-    "labelPoint": [0.0005, 0.0005],
-    "bbox": [0, 0, 0.001, 0.001],
+    "boundary": {"source": "owner-outline", "verified": false, "note": "Seventeen points entered by hand by the project owner on 2026-11-19, to 0.001° (about 100 m): an approximate outline, not a surveyed one and not derived from the specification's village list. Area ≈ 266 km². All points lie inside Racha-Lechkhumi and Kvemo Svaneti. Not compared with municipality borders: whether the western end reaches into Tsageri municipality (the specification lists Ambrolauri villages; Alpana and Orbeli are still undecided) has to be checked."},
+    "labelPoint": [42.9943, 42.55073],
+    "bbox": [42.735, 42.495, 43.235, 42.632],
     "source": "sakpatenti-khvanchkara",
     "verified": true,
     "note": "Village prefix 'ambrolauri' assumed from 'Ambrolauri district' on the page; check each village. Tsageri villages Alpana and Orbeli ('in some years') are not included: decision pending."
@@ -70,9 +70,9 @@
       {"id": "telavi-pshaveli", "name": {"ka": "ფშაველი"}, "source": "vinoge-napareuli", "verified": false},
       {"id": "telavi-lalisquri", "name": {"ka": "ლალისყური"}, "source": "vinoge-napareuli", "verified": false}
     ],
-    "boundary": {"source": "placeholder", "verified": false},
-    "labelPoint": [0.0005, 0.0005],
-    "bbox": [0, 0, 0.001, 0.001],
+    "boundary": {"source": "owner-outline", "verified": false, "note": "Nine points entered by hand by the project owner on 2026-11-19, to 0.001° (about 100 m): an approximate outline, not a surveyed one and not derived from the specification's village list. Area ≈ 48.6 km² (the specification gives ≈ 52 km²). All points lie inside Kakheti."},
+    "labelPoint": [45.49929, 42.05458],
+    "bbox": [45.451, 42.015, 45.552, 42.095],
     "source": "vinoge-napareuli",
     "verified": false,
     "note": "Primary Sakpatenti page for Napareuli not located yet. Village prefix 'telavi' assumed: the source names no municipality."

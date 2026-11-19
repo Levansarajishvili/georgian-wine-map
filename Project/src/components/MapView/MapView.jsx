@@ -1,6 +1,7 @@
 // src/components/MapView/MapView.jsx
 import { useContext, useEffect, useId, useRef, useState } from 'react';
 import { ka } from '../../copy/ka';
+import { getZoneMapTarget } from '../../domain/zoneMapTarget';
 import { regionsById, zonesInListOrder } from '../../loaders/catalogs';
 import {
   createRegionCenterFeatures,
@@ -184,8 +185,10 @@ export default function MapView({ onOpenZone }) {
     setCursorId(zone.id);
     controller.setHighlightedZone(zone.id);
     // Moves the map only when the zone is not fully on screen; animated,
-    // and without animation under prefers-reduced-motion (createMap).
-    controller.revealBBox(zone.bbox);
+    // and without animation under prefers-reduced-motion (createMap). A zone
+    // without an outline is shown by its region (getZoneMapTarget).
+    const target = getZoneMapTarget(zone, regionsById);
+    if (target) controller.revealBBox(target.bbox);
 
     const { matchingIds } = filterResult;
     const status = ka.map.keyboard.zone({

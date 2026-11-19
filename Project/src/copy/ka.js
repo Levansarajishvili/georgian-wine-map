@@ -165,6 +165,10 @@ export const ka = {
     // One line under "show on the map", by the state of zone.boundary.
     boundary: {
       missing: 'ამ ზონის საზღვარი ჯერ არ გვაქვს.',
+      // Follows `missing`: what "show on the map" shows while the zone has no
+      // outline. The names stay in the nominative after the colon.
+      showsRegion: (regionNames) =>
+        `ამიტომ რუკა ${regionNames.length > 1 ? 'რეგიონებს' : 'რეგიონს'} აჩვენებს: ${regionNames.join(', ')}.`,
       approximate: 'საზღვარი მიახლოებითია: სოფლების მდებარეობიდანაა გამოთვლილი.',
       unverified: 'საზღვარი წყაროსთან ჯერ არ შემოწმებულა.',
     },

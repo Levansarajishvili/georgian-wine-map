@@ -224,11 +224,18 @@
   --map-zone-dry-red-marker: triangle;
 
   /* Fill opacity depends on the basemap: imagery is busy, so fills are denser there.
-     Terrain uses the base values (verify in stage 5). */
-  --map-zone-fill-opacity: 0.65;
-  --map-zone-fill-opacity-imagery: 0.8;
-  --map-zone-fill-opacity-hover: 0.8;
-  --map-zone-fill-opacity-hover-imagery: 0.9;
+     Terrain uses the base values (verify in stage 5).
+     2026-11-19, owner's request: the fill is a tint, not a cover. Place names,
+     roads and the ground of the basemap must stay readable through a zone, and
+     the zone's colour must still be seen (first 0.65 / 0.8 / 0.8 / 0.9, then
+     0.3 / 0.35 / 0.45 / 0.5, then 0.18 / 0.2 / 0.3 / 0.32; each step at the
+     owner's request, the same day). The
+     outline and, where a style has one, the pattern now carry more of the
+     zone; contrast figures above were measured with the denser fills. */
+  --map-zone-fill-opacity: 0.1;
+  --map-zone-fill-opacity-imagery: 0.1;
+  --map-zone-fill-opacity-hover: 0.2;
+  --map-zone-fill-opacity-hover-imagery: 0.2;
 
   /* Outline = white casing underneath + coloured line on top.
      One of the two always reaches ≥ 3:1 against any background
@@ -254,6 +261,7 @@
   /* Patterns, drawn as a CanvasPattern over the fill */
   --map-pattern-spacing: 6;
   --map-pattern-line-width: 1;
+  --map-pattern-hatch-opacity: 0.2;  /* hatch lines are see-through like the fill (owner, 2026-11-19): at full strength they crossed out the basemap's place names */
   --map-pattern-bubble-radius: 1.5;
   --map-pattern-bubble-ring-width: 0.75;
 
