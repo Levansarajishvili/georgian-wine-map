@@ -7,6 +7,7 @@
  *
  * Stage 4: region group and the map motion duration.
  * Stage 5: zone group (styles, states, patterns, marker, chip, label).
+ * 2026-11-19: regionCenter group (pin on a region's administrative centre).
  */
 
 /**
@@ -73,6 +74,16 @@ export function readMapTokens(element = document.documentElement) {
         lineWidth: read.number('--map-region-line-width-hover'),
         casingWidth: read.number('--map-region-casing-width-hover'),
       },
+    },
+    /** Location pin on the administrative centre of a region. */
+    regionCenter: {
+      fill: read.string('--map-region-center-fill'),
+      casing: read.string('--map-region-center-casing'),
+      dot: read.string('--map-region-center-dot'),
+      height: read.number('--map-region-center-height'),
+      radius: read.number('--map-region-center-radius'),
+      dotRadius: read.number('--map-region-center-dot-radius'),
+      casingWidth: read.number('--map-region-center-casing-width'),
     },
     zone: {
       /** Keyed by wine style slug. */

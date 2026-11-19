@@ -289,6 +289,18 @@
   --map-region-line-hover: var(--color-text);  /* 14.5:1 vs casing */
   --map-region-line-width-hover: 2.5;
   --map-region-casing-width-hover: 7;
+  /* Regional centre (administrative centre of the region, e.g. Telavi): a
+     location pin whose tip stands on the town. Always drawn, hover or not.
+     Ink body on a white casing, like the hovered region line: no wine hue and
+     not the accent, because the pin is neither a zone nor a control.
+     14.5:1 body vs casing; the casing carries it over dark imagery. */
+  --map-region-center-fill: var(--color-text);
+  --map-region-center-casing: #FFFFFF;
+  --map-region-center-dot: #FFFFFF;        /* the "eye" of the pin */
+  --map-region-center-height: 24;          /* tip to the top of the head */
+  --map-region-center-radius: 8.5;         /* head */
+  --map-region-center-dot-radius: 3;
+  --map-region-center-casing-width: 2;
   /* Special-status regions: tokens added in chat 3, once the display rule exists. */
 }
 

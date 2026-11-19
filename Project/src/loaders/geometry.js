@@ -1,12 +1,14 @@
 // src/loaders/geometry.js
+import Feature from 'ol/Feature';
 import GeoJSON from 'ol/format/GeoJSON';
 import { createEmpty, extend } from 'ol/extent';
+import Point from 'ol/geom/Point';
 import { fromLonLat } from 'ol/proj';
 // `?url`: Vite emits the file as a hashed asset and returns its URL.
 // Never import *.geo.json without it, that would put the geometry in the JS bundle.
 import regionsUrl from '../data/regions.geo.json?url';
 import zonesUrl from '../data/zones.geo.json?url';
-import { stylesById, zonesById } from './catalogs';
+import { regions, stylesById, zonesById } from './catalogs';
 
 const format = new GeoJSON({
   dataProjection: 'EPSG:4326',
@@ -78,4 +80,28 @@ export function loadRegionGeometry() {
  */
 export function loadZoneGeometry() {
   return load(zonesUrl, joinZoneIndex);
+}
+
+/**
+ * Administrative centres of the regions (regions.json `center`), as Point
+ * features in EPSG:3857 for the pins of the map. Feature.id is the region's
+ * id; `name` is the name of the town.
+ *
+ * Synchronous: the points are in the attribute file, not in a geometry file
+ * (there is one point per region). A region without `center` gets no pin.
+ * New features on every call, so each map instance owns the ones it was given.
+ *
+ * @returns {import('ol/Feature').default[]}
+ */
+export function createRegionCenterFeatures() {
+  return regions
+    .filter((region) => region.center)
+    .map((region) => {
+      const feature = new Feature({
+        geometry: new Point(fromLonLat(region.center.point)),
+        name: region.center.name.ka,
+      });
+      feature.setId(region.id);
+      return feature;
+    });
 }

@@ -3,6 +3,13 @@
     "id": "kakheti",
     "name": { "ka": "კახეთი" },
     "bbox": [45.02585, 41.05513, 46.73654, 42.57397],
+    "center": {
+      "name": { "ka": "თელავი" },
+      "point": [45.47032, 41.91972],
+      "source": "osm-places",
+      "verified": false,
+      "note": "Nominatim centre point of OSM relation 8374133 (თელავი, city). Read on 2026-11-19 through an automatic summary of the response; relation number and coordinates not yet checked against OSM by hand."
+    },
     "source": "osm-adm1",
     "verified": false,
     "note": "OSM relation 2000091 (name:ka „კახეთის მხარე“), full OSM detail (no simplification). Slug follows 02 §2. Geometry not yet checked against OSM on the map."
@@ -11,6 +18,13 @@
     "id": "racha-lechkhumi-da-kvemo-svaneti",
     "name": { "ka": "რაჭა-ლეჩხუმი და ქვემო სვანეთი" },
     "bbox": [42.35664, 42.36856, 43.94697, 42.96882],
+    "center": {
+      "name": { "ka": "ამბროლაური" },
+      "point": [43.15323, 42.5186],
+      "source": "osm-places",
+      "verified": false,
+      "note": "Nominatim centre point of OSM relation 8374177 (ამბროლაური, town). Read on 2026-11-19 through an automatic summary of the response; relation number and coordinates not yet checked against OSM by hand."
+    },
     "source": "osm-adm1",
     "verified": false,
     "note": "OSM relation 17916471 (boundary=disputed, claimed_by=Georgia; de jure border, 5039 km²), full OSM detail (no simplification). The admin_level=4 relation 1997284 leaves out the occupied part (~360 km²). Slug is the mechanical 02 §2 result; confirm before publishing."

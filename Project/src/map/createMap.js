@@ -11,6 +11,7 @@ import { defaults as defaultInteractions } from 'ol/interaction/defaults';
 import { transformExtent } from 'ol/proj';
 import { createBasemapLayers } from './basemaps';
 import { attachRegionHover, attachZoneInteractions } from './interactions';
+import { createRegionCentersLayer } from './layers/regionCentersLayer';
 import { createRegionsLayer } from './layers/regionsLayer';
 import { createZonesLayer } from './layers/zonesLayer';
 import { readMapTokens } from './styles/mapTokens';
@@ -25,8 +26,9 @@ const DATA_PROJECTION = 'EPSG:4326';
 const MIN_ZOOM = 5;
 const MAX_ZOOM = 15;
 
-// Layer order: basemap → regions → zones.
-const Z_INDEX = { basemap: 0, regions: 10, zones: 20 };
+// Layer order: basemap → regions → zones → regional centres. The pins are on
+// top: a zone fill must not cover the mark of a town.
+const Z_INDEX = { basemap: 0, regions: 10, zones: 20, regionCenters: 30 };
 
 // Only listened to; what it means is decided by tokens.css (see below).
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
@@ -135,6 +137,9 @@ export function createMap({
   zones.layer.setZIndex(Z_INDEX.zones);
   zones.setBasemap(basemapId);
 
+  const regionCenters = createRegionCentersLayer(tokens.regionCenter);
+  regionCenters.layer.setZIndex(Z_INDEX.regionCenters);
+
   const createZoomControl = () => {
     const control = new Zoom({
       target: zoomTarget,
@@ -161,7 +166,7 @@ export function createMap({
   const map = new Map({
     target,
     view,
-    layers: [...basemapLayers.values(), regions.layer, zones.layer],
+    layers: [...basemapLayers.values(), regions.layer, zones.layer, regionCenters.layer],
     controls: [zoom, attribution],
     interactions: createInteractions(reducedMotion),
   });
@@ -249,10 +254,13 @@ export function createMap({
      * @param {object} features
      * @param {import('ol/Feature').default[]} [features.regions]
      * @param {import('ol/Feature').default[]} [features.zones] from loadZoneGeometry()
+     * @param {import('ol/Feature').default[]} [features.regionCenters] from
+     *   createRegionCenterFeatures(): the pins on the regional centres
      */
-    setFeatures({ regions: regionFeatures, zones: zoneFeatures }) {
+    setFeatures({ regions: regionFeatures, zones: zoneFeatures, regionCenters: centerFeatures }) {
       if (regionFeatures) regions.setFeatures(regionFeatures);
       if (zoneFeatures) zones.setFeatures(zoneFeatures);
+      if (centerFeatures) regionCenters.setFeatures(centerFeatures);
     },
 
     /** @param {string} id basemap id from map/basemaps.js */

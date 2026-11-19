@@ -2,7 +2,11 @@
 import { useContext, useEffect, useId, useRef, useState } from 'react';
 import { ka } from '../../copy/ka';
 import { regionsById, zonesInListOrder } from '../../loaders/catalogs';
-import { loadRegionGeometry, loadZoneGeometry } from '../../loaders/geometry';
+import {
+  createRegionCenterFeatures,
+  loadRegionGeometry,
+  loadZoneGeometry,
+} from '../../loaders/geometry';
 import { DEFAULT_BASEMAP_ID } from '../../map/basemaps';
 import { createMap } from '../../map/createMap';
 import { useUrlFilters } from '../../state/useUrlFilters';
@@ -87,6 +91,9 @@ export default function MapView({ onOpenZone }) {
       // sheet changes --map-inset-bottom, and with it the overlay's padding.
       getFitPadding: () => (overlayRef.current ? readPadding(overlayRef.current) : [0, 0, 0, 0]),
     });
+    // Pins on the regional centres. The points are in regions.json, so there is
+    // nothing to wait for; they appear with the first view (the regions' extent).
+    controller.setFeatures({ regionCenters: createRegionCenterFeatures() });
     controllerRef.current = controller;
 
     return () => {

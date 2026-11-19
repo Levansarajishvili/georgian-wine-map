@@ -8,6 +8,14 @@
     "license": "ODbL 1.0"
   },
   {
+    "id": "osm-places",
+    "title": "OpenStreetMap: cities and towns, centre point of the settlement (via Nominatim)",
+    "publisher": "OpenStreetMap contributors",
+    "url": "https://www.openstreetmap.org/copyright",
+    "accessed": "2026-11-19",
+    "license": "ODbL 1.0"
+  },
+  {
     "id": "placeholder",
     "title": "მონაცემი ჯერ არ არის — ჩანაცვლდება ჩატ 3-ში"
   },

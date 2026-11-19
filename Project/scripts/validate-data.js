@@ -5,6 +5,7 @@
 //   - `source` points to an id in sources.json; placeholder => verified: false (§6, §9.7)
 //   - ids are slugs and unique per file; link ids are unique per list (§2, §9.1–9.2)
 //   - every link points to an existing id (§9.3)
+//   - a region's optional `center` has a name, a [lon, lat] point and provenance (§4.4)
 // Geometry checks (§9.4–9.6, §9.8) are not here yet: they need the *.geo.json files.
 //
 // Usage:
@@ -168,6 +169,26 @@ for (const [file, records] of [
     checkProvenance(recordLabel(file, record, index), record, sourceIds);
   });
 }
+
+// Region centre (§4.4): optional; a named point with its own provenance.
+// Whether the point lies inside the region is a geometry check (not here yet).
+regions.forEach((region, index) => {
+  if (!isObject(region) || region.center === undefined) return;
+  const where = `${recordLabel('regions.json', region, index)} › center`;
+  const { center } = region;
+  checkProvenance(where, center, sourceIds);
+  if (!isObject(center)) return; // already reported by checkProvenance
+
+  if (!isObject(center.name) || typeof center.name.ka !== 'string' || center.name.ka === '') {
+    error(where, 'missing name.ka');
+  }
+  const { point } = center;
+  if (!Array.isArray(point) || point.length !== 2 || !point.every(Number.isFinite)) {
+    error(where, 'point must be [lon, lat]');
+  } else if (Math.abs(point[0]) > 180 || Math.abs(point[1]) > 90) {
+    error(where, `point [${point.join(', ')}] is not a longitude and a latitude`);
+  }
+});
 
 zones.forEach((zone, index) => {
   const where = recordLabel('zones.json', zone, index);

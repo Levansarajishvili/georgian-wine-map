@@ -223,7 +223,16 @@
 | `id` | Slug | კი | `"kakheti"` |
 | `name` | LocalizedString | კი | `{ "ka": "კახეთი" }` |
 | `bbox` | BBox | კი | `fitToExtent`-ისთვის |
+| `center` | RegionCenter | არა | რეგიონის ადმინისტრაციული ცენტრი; რუკაზე ლოკაციის ნიშანი |
 | `source`, `verified`, `note` | Provenance | კი, კი, არა | `"placeholder"`, `false` |
+
+**RegionCenter** (დაემატა 2026-11-19) — რეგიონის ადმინისტრაციული ცენტრი (კახეთი → თელავი). წერტილი ატრიბუტების ფაილშია და არა გეომეტრიის ფაილში: რეგიონზე ერთი წერტილია და სინქრონულად გვჭირდება. საკუთარი Provenance აქვს, რადგან წყარო რეგიონის საზღვრის წყაროსგან განსხვავდება. `center`-ის გარეშე რეგიონს ნიშანი არ აქვს.
+
+| ველი | ტიპი | სავალდებულო? | მაგალითი |
+|---|---|---|---|
+| `name` | LocalizedString | კი | `{ "ka": "თელავი" }` |
+| `point` | LngLat, რეგიონის შიგნით | კი | `[45.47032, 41.91972]` |
+| `source`, `verified`, `note` | Provenance | კი, კი, არა | `"osm-places"`, `false` |
 
 ზონების ჩამონათვალი რეგიონში არ ინახება: ის `zones.json`-იდან ითვლება. აფხაზეთისა და ცხინვალის რეგიონის ჩვენების წესი ჩატ 3-შია; ამისთვის შეიძლება დაემატოს `status` ველი (§8).
 
@@ -428,7 +437,7 @@
 3. ყველა მითითება არსებობს: `regions`, `grapes`, `styles`, `source`.
 4. `zones.json` ↔ `zones.geo.json` და `regions.json` ↔ `regions.geo.json`: 1:1 id-ით.
 5. ზონის გეომეტრია `MultiPolygon`-ია და ვალიდურია (დახურული რგოლები, თვითგადაკვეთის გარეშე).
-6. კოორდინატები საქართველოს ფარგლებშია (ზღვარი `regions.geo.json`-იდან ითვლება); `labelPoint` თავისი ზონის შიგნითაა; `bbox` გეომეტრიის extent-ს ემთხვევა.
+6. კოორდინატები საქართველოს ფარგლებშია (ზღვარი `regions.geo.json`-იდან ითვლება); `labelPoint` თავისი ზონის შიგნითაა; `center.point` თავისი რეგიონის შიგნითაა; `bbox` გეომეტრიის extent-ს ემთხვევა.
 7. `source: "placeholder"` ⇒ `verified: false`; production-ში placeholder არ რჩება.
 8. `zone.regions` ემთხვევა გეომეტრიისა და რეგიონების თანაკვეთას (გაფრთხილება, არა შეცდომა).
 9. ფაილები `id`-ით დალაგებულია; კოორდინატები 5 ათწილადამდეა დამრგვალებული.
@@ -487,10 +496,17 @@ interface Grape extends Provenance {
   synonyms: string[];
 }
 
+/** Administrative centre of a region: the pin on the map. */
+interface RegionCenter extends Provenance {
+  name: LocalizedString;
+  point: LngLat; // inside the region geometry
+}
+
 interface Region extends Provenance {
   id: RegionId;
   name: LocalizedString;
   bbox: BBox;
+  center?: RegionCenter;
 }
 
 /** Relation record: target id plus the relation's own provenance. */
