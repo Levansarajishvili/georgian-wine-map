@@ -29,15 +29,27 @@ function getTolerance(event) {
  * @param {(id: string|null) => void} handlers.onZoneClick
  * @param {() => string|null} [handlers.getHighlightedId] zone to highlight
  *   whatever the mouse does; read on every refresh
+ * @param {(coordinate: number[], tolerancePx: number) => boolean} [handlers.isCovered]
+ *   true where something drawn above the zones takes the pointer (the pin of
+ *   a regional centre). The zone below is then neither hovered nor clicked,
+ *   and onZoneClick is not called at all: a click on a pin does not change
+ *   the selection. The cursor is still a pointer, because the click does
+ *   something.
  * @returns {{ detach: () => void, refreshHover: () => void }} call
  *   refreshHover() after the value behind getHighlightedId has changed
  */
-export function attachZoneInteractions(map, zones, { onZoneClick, getHighlightedId = () => null }) {
+export function attachZoneInteractions(
+  map,
+  zones,
+  { onZoneClick, getHighlightedId = () => null, isCovered = () => false },
+) {
   const viewport = map.getViewport();
   /** Last mouse position in CSS px, or null while the mouse is outside the map. */
   let mousePixel = null;
   /** Zone under the mouse, or null. */
   let mouseZoneId = null;
+  /** The mouse is on something above the zones (see isCovered). */
+  let mouseCovered = false;
 
   const pick = (coordinate, tolerancePx) => {
     const resolution = map.getView().getResolution();
@@ -47,18 +59,20 @@ export function attachZoneInteractions(map, zones, { onZoneClick, getHighlighted
 
   const applyHover = () => {
     zones.setHovered(getHighlightedId() ?? mouseZoneId);
-    viewport.style.cursor = mouseZoneId ? 'pointer' : '';
+    viewport.style.cursor = mouseZoneId || mouseCovered ? 'pointer' : '';
   };
 
   const updateHover = () => {
-    mouseZoneId = mousePixel
-      ? pick(map.getCoordinateFromPixel(mousePixel), TOLERANCE_PX.mouse)
-      : null;
+    const coordinate = mousePixel ? map.getCoordinateFromPixel(mousePixel) : null;
+    mouseCovered = coordinate ? isCovered(coordinate, TOLERANCE_PX.mouse) : false;
+    mouseZoneId = mouseCovered ? null : pick(coordinate, TOLERANCE_PX.mouse);
     applyHover();
   };
 
   const handleClick = (event) => {
-    onZoneClick(pick(event.coordinate, getTolerance(event)));
+    const tolerance = getTolerance(event);
+    if (isCovered(event.coordinate, tolerance)) return;
+    onZoneClick(pick(event.coordinate, tolerance));
   };
 
   const handlePointerMove = (event) => {
@@ -88,6 +102,42 @@ export function attachZoneInteractions(map, zones, { onZoneClick, getHighlighted
       viewport.style.cursor = '';
     },
     refreshHover: applyHover,
+  };
+}
+
+/**
+ * Clicks on the pins of the regional centres.
+ *
+ * singleclick → the centre whose pin is under the pointer, or null anywhere
+ * else → onCenterClick. What that opens or closes is the listener's business
+ * (regionCenterPopup). A pin has no hover of its own: the pointer cursor over
+ * it comes from attachZoneInteractions, which is given pickAt() as isCovered,
+ * so both sides agree on where a pin is.
+ *
+ * @param {import('ol/Map').default} map
+ * @param {ReturnType<typeof import('./layers/regionCentersLayer').createRegionCentersLayer>} centers
+ * @param {object} handlers
+ * @param {(center: { id: string, name: string, coordinate: number[] }|null) => void} handlers.onCenterClick
+ * @returns {{ detach: () => void, pickAt: (coordinate: number[], tolerancePx: number) => object|null }}
+ */
+export function attachRegionCenterClick(map, centers, { onCenterClick }) {
+  const pickAt = (coordinate, tolerancePx) => {
+    const resolution = map.getView().getResolution();
+    if (!coordinate || resolution === undefined) return null;
+    return centers.pickAt(coordinate, resolution, tolerancePx);
+  };
+
+  const handleClick = (event) => {
+    onCenterClick(pickAt(event.coordinate, getTolerance(event)));
+  };
+
+  map.on('singleclick', handleClick);
+
+  return {
+    detach() {
+      map.un('singleclick', handleClick);
+    },
+    pickAt,
   };
 }
 

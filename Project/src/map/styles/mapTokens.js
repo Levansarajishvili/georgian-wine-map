@@ -84,6 +84,7 @@ export function readMapTokens(element = document.documentElement) {
       radius: read.number('--map-region-center-radius'),
       dotRadius: read.number('--map-region-center-dot-radius'),
       casingWidth: read.number('--map-region-center-casing-width'),
+      popupGap: read.number('--map-region-center-popup-gap'),
     },
     zone: {
       /** Keyed by wine style slug. */

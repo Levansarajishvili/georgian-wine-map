@@ -121,3 +121,61 @@ input {
 .ol-control.ol-attribution a:hover {
   color: var(--color-text);
 }
+
+/* ---------------------------------------------------------------
+ * Map popup: the name of a regional centre, opened by a click on its
+ * pin (map/regionCenterPopup.js). OpenLayers keeps the plate centred
+ * above the pin; the tail points at it.
+ *
+ * Opening: the plate rises from below and fades in over
+ * --motion-duration-popup (1ms under prefers-reduced-motion). The
+ * script adds .map-popup-entering on every opening, so the animation
+ * also runs when the popup moves from one pin to another. Transform
+ * is free to use here: OpenLayers positions its own wrapper, not the
+ * plate.
+ * ------------------------------------------------------------- */
+.map-popup {
+  position: relative;
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-popover);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-heading);
+  white-space: nowrap;
+}
+
+.map-popup-entering {
+  animation: map-popup-enter var(--motion-duration-popup) var(--motion-ease-enter) both;
+}
+
+@keyframes map-popup-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-5));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* A square turned on its corner; only the half below the plate is painted,
+   so it covers the plate's border where the two meet and nothing of the text. */
+.map-popup::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: var(--space-3);
+  height: var(--space-3);
+  background: inherit;
+  border: inherit;
+  border-radius: 0;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  transform: translate(-50%, 50%) rotate(45deg);
+}

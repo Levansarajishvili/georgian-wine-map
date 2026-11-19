@@ -10,10 +10,15 @@ import KeyboardPan from 'ol/interaction/KeyboardPan';
 import { defaults as defaultInteractions } from 'ol/interaction/defaults';
 import { transformExtent } from 'ol/proj';
 import { createBasemapLayers } from './basemaps';
-import { attachRegionHover, attachZoneInteractions } from './interactions';
+import {
+  attachRegionCenterClick,
+  attachRegionHover,
+  attachZoneInteractions,
+} from './interactions';
 import { createRegionCentersLayer } from './layers/regionCentersLayer';
 import { createRegionsLayer } from './layers/regionsLayer';
 import { createZonesLayer } from './layers/zonesLayer';
+import { createRegionCenterPopup } from './regionCenterPopup';
 import { readMapTokens } from './styles/mapTokens';
 import { LABEL_MIN_ZOOM } from './styles/zoneStyles';
 
@@ -175,9 +180,23 @@ export function createMap({
   const zoneClickListeners = new Set();
   /** Zone highlighted from outside the map (keyboard), or null. */
   let highlightedId = null;
+
+  // A click on a pin opens the name of the town; any other click closes it.
+  const centerPopup = createRegionCenterPopup({
+    tokens: tokens.regionCenter,
+    getPanDuration: () => readMapTokens().motion.mapDuration,
+  });
+  map.addOverlay(centerPopup.overlay);
+  const centerInteractions = attachRegionCenterClick(map, regionCenters, {
+    onCenterClick: centerPopup.toggle,
+  });
+
   const zoneInteractions = attachZoneInteractions(map, zones, {
     onZoneClick: (id) => zoneClickListeners.forEach((listener) => listener(id)),
     getHighlightedId: () => highlightedId,
+    // The pins are drawn above the zones, so a pin takes the click.
+    isCovered: (coordinate, tolerancePx) =>
+      centerInteractions.pickAt(coordinate, tolerancePx) !== null,
   });
   const detachRegionHover = attachRegionHover(map, regions);
 
@@ -260,7 +279,11 @@ export function createMap({
     setFeatures({ regions: regionFeatures, zones: zoneFeatures, regionCenters: centerFeatures }) {
       if (regionFeatures) regions.setFeatures(regionFeatures);
       if (zoneFeatures) zones.setFeatures(zoneFeatures);
-      if (centerFeatures) regionCenters.setFeatures(centerFeatures);
+      if (centerFeatures) {
+        // The popup may be open on a pin that is about to go.
+        centerPopup.close();
+        regionCenters.setFeatures(centerFeatures);
+      }
     },
 
     /** @param {string} id basemap id from map/basemaps.js */
@@ -342,6 +365,7 @@ export function createMap({
     destroy() {
       motionQuery.removeEventListener('change', handleMotionChange);
       zoneInteractions.detach();
+      centerInteractions.detach();
       detachRegionHover();
       zoneClickListeners.clear();
       map.setTarget(undefined);

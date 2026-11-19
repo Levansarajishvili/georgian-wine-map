@@ -152,6 +152,7 @@
   --motion-duration-base: 200ms;   /* popovers, fades */
   --motion-duration-sheet: 280ms;  /* sheet snap */
   --motion-duration-map: 450ms;    /* fitToExtent; read by mapTokens.js */
+  --motion-duration-popup: 3s;     /* map popup rising into place (global.css); slow on purpose, owner's choice */
   --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --motion-ease-enter: cubic-bezier(0, 0, 0.2, 1);
   --motion-ease-exit: cubic-bezier(0.4, 0, 1, 1);
@@ -301,6 +302,7 @@
   --map-region-center-radius: 8.5;         /* head */
   --map-region-center-dot-radius: 3;
   --map-region-center-casing-width: 2;
+  --map-region-center-popup-gap: 12;       /* top of the pin ↔ name plate (map popup, global.css); the plate's tail hangs in it */
   /* Special-status regions: tokens added in chat 3, once the display rule exists. */
 }
 
@@ -313,5 +315,6 @@
     --motion-duration-base: 1ms;
     --motion-duration-sheet: 1ms;
     --motion-duration-map: 0ms;
+    --motion-duration-popup: 1ms;
   }
 }
