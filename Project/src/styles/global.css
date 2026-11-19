@@ -123,6 +123,100 @@ input {
 }
 
 /* ---------------------------------------------------------------
+ * Wall of the hovered region: the outline of the region under the
+ * mouse rises from the map like a wall, and sinks back when the
+ * mouse leaves. The script (map/layers/regionWallLayer.js) only puts
+ * the outline here as an SVG path and adds or removes .is-raised;
+ * the wall itself is made below.
+ *
+ * How it is built. .map-region-wall holds the top of the wall: a
+ * white cap on an ink rim. Each drop-shadow repeats everything above
+ * it one course lower, in its own colour, so four of them stack into
+ * the face of the wall. The whole thing is moved up by the height of
+ * the wall, which leaves the lowest course standing on the outline on
+ * the map. While the wall rises, the course grows from 0 and the top
+ * moves up by the same amount: the foot never leaves the ground.
+ * Then a thin white halo (dark imagery) and the shadow the wall
+ * throws on the map.
+ *
+ * Both ways take --motion-duration-wall at the even pace of
+ * --motion-ease-wall (1ms under prefers-reduced-motion). A transition, not a keyframe animation:
+ * a mouse that leaves halfway turns the wall round from where it is.
+ * ------------------------------------------------------------- */
+.map-region-walls {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.map-region-wall {
+  --wall-course: 0px; /* height of one course; 0: the wall lies flat */
+  --wall-lift: 0px;
+  --wall-cast-offset: 0px;
+  --wall-cast-blur: 0px;
+
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: translateY(calc(-1 * var(--wall-lift)));
+  /* One drop-shadow per course: --region-wall-courses says how many. */
+  filter:
+    drop-shadow(0 var(--wall-course) 0 var(--region-wall-face-1))
+    drop-shadow(0 var(--wall-course) 0 var(--region-wall-face-2))
+    drop-shadow(0 var(--wall-course) 0 var(--region-wall-face-3))
+    drop-shadow(0 var(--wall-course) 0 var(--region-wall-face-4))
+    drop-shadow(0 0 var(--region-wall-halo-width) var(--region-wall-halo))
+    drop-shadow(var(--wall-cast-offset) var(--wall-cast-offset) var(--wall-cast-blur) var(--region-wall-cast));
+  /* Sinking. The wall stays visible until it is down, then fades out. */
+  transition:
+    transform var(--motion-duration-wall) var(--motion-ease-wall),
+    filter var(--motion-duration-wall) var(--motion-ease-wall),
+    opacity var(--motion-duration-fast) linear
+      calc(var(--motion-duration-wall) - var(--motion-duration-fast));
+  will-change: transform, filter, opacity;
+}
+
+.map-region-wall.is-raised {
+  --wall-course: calc(var(--region-wall-height) / var(--region-wall-courses));
+  --wall-lift: var(--region-wall-height);
+  --wall-cast-offset: var(--region-wall-cast-offset);
+  --wall-cast-blur: var(--region-wall-cast-blur);
+
+  opacity: 1;
+  /* Rising: visible at once, then up. */
+  transition:
+    transform var(--motion-duration-wall) var(--motion-ease-wall),
+    filter var(--motion-duration-wall) var(--motion-ease-wall),
+    opacity var(--motion-duration-fast) linear;
+}
+
+/* The outline is in CSS px of the map and reaches past its edges; the
+   lifted wall must not be cut at the box of the svg. */
+.map-region-wall svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.map-region-wall path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.map-region-wall-rim {
+  stroke: var(--region-wall-rim);
+  stroke-width: var(--region-wall-thickness);
+}
+
+.map-region-wall-cap {
+  stroke: var(--region-wall-cap);
+  stroke-width: var(--region-wall-cap-width);
+}
+
+/* ---------------------------------------------------------------
  * Map popup: the name of a regional centre, opened by a click on its
  * pin (map/regionCenterPopup.js). OpenLayers keeps the plate centred
  * above the pin; the tail points at it.

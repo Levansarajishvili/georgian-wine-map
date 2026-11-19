@@ -153,10 +153,12 @@
   --motion-duration-sheet: 280ms;  /* sheet snap */
   --motion-duration-map: 450ms;    /* fitToExtent; read by mapTokens.js */
   --motion-duration-popup: 300ms;  /* map popup rising into place (global.css) */
+  --motion-duration-wall: 300ms;   /* wall of the hovered region rising and sinking (global.css) */
   --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --motion-ease-enter: cubic-bezier(0, 0, 0.2, 1);
   --motion-ease-exit: cubic-bezier(0.4, 0, 1, 1);
   --motion-ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+  --motion-ease-wall: cubic-bezier(0.4, 0, 0.6, 1);  /* even pace: the wall is built up, it does not jump */
   /* OpenLayers animations take a JS easing function (ol/easing easeOut),
      not a cubic-bezier string; only the duration crosses over. */
 
@@ -285,15 +287,33 @@
   --map-region-line-dash: 6 4;
   --map-region-casing: #FFFFFF;
   --map-region-casing-width: 3.5;
-  /* Hover (mouse over the region): the same outline made prominent. A solid ink
-     line instead of the dashed grey one, on a wider casing; the width and the
-     missing dash are the non-colour signal. */
-  --map-region-line-hover: var(--color-text);  /* 14.5:1 vs casing */
-  --map-region-line-width-hover: 2.5;
-  --map-region-casing-width-hover: 7;
+  /* Hover (mouse over the region): its outline rises from the map as a wall
+     and sinks back when the mouse leaves (--motion-duration-wall).
+     The wall is not drawn on the canvas: the outline of the hovered region is
+     an SVG path in the DOM (map/layers/regionWallLayer.js) and the wall is
+     made of it in CSS (global.css). So these are ordinary CSS values, with
+     units, and mapTokens.js does not read them; hence no --map- prefix.
+     Top of the wall: a white cap on an ink rim (14.5:1), the reverse of the
+     outline on the ground. Faces: ink, darker towards the ground. A white
+     halo keeps the wall off dark imagery; the height is the non-colour signal. */
+  --region-wall-height: 14px;
+  --region-wall-courses: 4;                 /* the face is built in this many steps (global.css has one drop-shadow per course) */
+  --region-wall-thickness: 5px;             /* rim; one course (height / courses) must not be taller, or the face has gaps */
+  --region-wall-cap: #FFFFFF;
+  --region-wall-cap-width: 2px;
+  --region-wall-rim: var(--color-text);
+  --region-wall-face-1: #4A5B74;            /* top course */
+  --region-wall-face-2: #3B4A60;
+  --region-wall-face-3: #2C394C;
+  --region-wall-face-4: var(--color-text);  /* course on the ground */
+  --region-wall-halo: rgb(255 255 255 / 0.9);
+  --region-wall-halo-width: 1px;
+  --region-wall-cast: rgb(16 22 32 / 0.5);  /* shadow the wall throws on the map */
+  --region-wall-cast-offset: 6px;           /* to the right and down: light from the upper left */
+  --region-wall-cast-blur: 5px;
   /* Regional centre (administrative centre of the region, e.g. Telavi): a
      location pin whose tip stands on the town. Always drawn, hover or not.
-     Ink body on a white casing, like the hovered region line: no wine hue and
+     Ink body on a white casing: no wine hue and
      not the accent, because the pin is neither a zone nor a control.
      14.5:1 body vs casing; the casing carries it over dark imagery. */
   --map-region-center-fill: var(--color-text);
@@ -317,5 +337,6 @@
     --motion-duration-sheet: 1ms;
     --motion-duration-map: 0ms;
     --motion-duration-popup: 1ms;
+    --motion-duration-wall: 1ms;
   }
 }

@@ -7,21 +7,18 @@ import { createRegionStyle } from '../styles/regionStyle';
  * ADM1 regions layer. The layer and its source are created once;
  * features arrive later through setFeatures().
  *
- * Owns its style state (the hovered region). A change updates the state and
- * calls layer.changed(): features are never recreated.
+ * It has no style state: every region is drawn the same way, always. The
+ * hovered region is shown by another layer, which raises its outline as a
+ * wall (regionWallLayer); this one says which region is under the mouse
+ * (pickAt) and hands out its geometry (getGeometry).
  *
  * @param {object} regionTokens mapTokens.region
  */
 export function createRegionsLayer(regionTokens) {
-  const state = {
-    /** @type {string|null} */
-    hoveredId: null,
-  };
-
   const source = new VectorSource();
   const layer = new VectorLayer({
     source,
-    style: createRegionStyle(regionTokens, state),
+    style: createRegionStyle(regionTokens),
   });
 
   return {
@@ -31,18 +28,6 @@ export function createRegionsLayer(regionTokens) {
     setFeatures(features) {
       source.clear(true);
       source.addFeatures(features);
-    },
-
-    /**
-     * Redraws only when the value really changed.
-     * @param {string|null} id region id (Feature.id), or null
-     */
-    setHovered(id) {
-      const next = id ?? null;
-      if (state.hoveredId === next) return false;
-      state.hoveredId = next;
-      layer.changed();
-      return true;
     },
 
     /**
@@ -56,6 +41,14 @@ export function createRegionsLayer(regionTokens) {
     pickAt(coordinate) {
       const [feature] = source.getFeaturesAtCoordinate(coordinate);
       return feature?.getId() ?? null;
+    },
+
+    /**
+     * @param {string} id region id (Feature.id)
+     * @returns {import('ol/geom/Geometry').default|null} in the view projection
+     */
+    getGeometry(id) {
+      return source.getFeatureById(id)?.getGeometry() ?? null;
     },
   };
 }

@@ -69,11 +69,7 @@ export function readMapTokens(element = document.documentElement) {
       lineDash: read.numberList('--map-region-line-dash'),
       casing: read.string('--map-region-casing'),
       casingWidth: read.number('--map-region-casing-width'),
-      hover: {
-        line: read.string('--map-region-line-hover'),
-        lineWidth: read.number('--map-region-line-width-hover'),
-        casingWidth: read.number('--map-region-casing-width-hover'),
-      },
+      // The hovered region's wall is CSS only (--region-wall-*, global.css).
     },
     /** Location pin on the administrative centre of a region. */
     regionCenter: {

@@ -16,6 +16,7 @@ import {
   attachZoneInteractions,
 } from './interactions';
 import { createRegionCentersLayer } from './layers/regionCentersLayer';
+import { createRegionWallLayer } from './layers/regionWallLayer';
 import { createRegionsLayer } from './layers/regionsLayer';
 import { createZonesLayer } from './layers/zonesLayer';
 import { createRegionCenterPopup } from './regionCenterPopup';
@@ -31,9 +32,11 @@ const DATA_PROJECTION = 'EPSG:4326';
 const MIN_ZOOM = 5;
 const MAX_ZOOM = 15;
 
-// Layer order: basemap → regions → zones → regional centres. The pins are on
+// Layer order: basemap → regions → wall of the hovered region → zones →
+// regional centres. The wall stands on the region's outline, so it is right
+// above it and below the zones: a wall must not hide a zone. The pins are on
 // top: a zone fill must not cover the mark of a town.
-const Z_INDEX = { basemap: 0, regions: 10, zones: 20, regionCenters: 30 };
+const Z_INDEX = { basemap: 0, regions: 10, regionWall: 15, zones: 20, regionCenters: 30 };
 
 // Only listened to; what it means is decided by tokens.css (see below).
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
@@ -118,6 +121,9 @@ export function createMap({
   const regions = createRegionsLayer(tokens.region);
   regions.layer.setZIndex(Z_INDEX.regions);
 
+  const regionWall = createRegionWallLayer();
+  regionWall.layer.setZIndex(Z_INDEX.regionWall);
+
   /**
    * @param {{ center?: number[], resolution?: number }} [state] carried over
    *   when the view is replaced
@@ -171,7 +177,13 @@ export function createMap({
   const map = new Map({
     target,
     view,
-    layers: [...basemapLayers.values(), regions.layer, zones.layer, regionCenters.layer],
+    layers: [
+      ...basemapLayers.values(),
+      regions.layer,
+      regionWall.layer,
+      zones.layer,
+      regionCenters.layer,
+    ],
     controls: [zoom, attribution],
     interactions: createInteractions(reducedMotion),
   });
@@ -198,7 +210,10 @@ export function createMap({
     isCovered: (coordinate, tolerancePx) =>
       centerInteractions.pickAt(coordinate, tolerancePx) !== null,
   });
-  const detachRegionHover = attachRegionHover(map, regions);
+  // The outline of the region under the mouse rises as a wall (CSS, global.css).
+  const detachRegionHover = attachRegionHover(map, regions, {
+    onHover: (id) => regionWall.setRegion(id, id === null ? null : regions.getGeometry(id)),
+  });
 
   // The setting changed while the page is open (or DevTools emulates it):
   // rebuild what was created with the old value. The view keeps its place.
@@ -277,7 +292,11 @@ export function createMap({
      *   createRegionCenterFeatures(): the pins on the regional centres
      */
     setFeatures({ regions: regionFeatures, zones: zoneFeatures, regionCenters: centerFeatures }) {
-      if (regionFeatures) regions.setFeatures(regionFeatures);
+      if (regionFeatures) {
+        // A wall may stand on a region that is about to go.
+        regionWall.clear();
+        regions.setFeatures(regionFeatures);
+      }
       if (zoneFeatures) zones.setFeatures(zoneFeatures);
       if (centerFeatures) {
         // The popup may be open on a pin that is about to go.
@@ -367,6 +386,7 @@ export function createMap({
       zoneInteractions.detach();
       centerInteractions.detach();
       detachRegionHover();
+      regionWall.clear();
       zoneClickListeners.clear();
       map.setTarget(undefined);
       // Controls live in their own targets; dispose() removes their elements too.

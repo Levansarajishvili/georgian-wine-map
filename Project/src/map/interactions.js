@@ -142,26 +142,37 @@ export function attachRegionCenterClick(map, centers, { onCenterClick }) {
 }
 
 /**
- * Hover of the regions layer: the region under the mouse gets a prominent
- * outline (regionStyle).
+ * Hover of the regions: says which region is under the mouse. What that
+ * looks like is the listener's business (the region's outline rises as a
+ * wall, regionWallLayer).
  *
- * Like the zone hover it only changes the layer's style state and never
- * reaches React, and it is mouse only. A zone inside the region does not
- * interrupt it: the mouse is still in the region. The cursor is left alone,
- * because a region cannot be clicked on the map.
+ * Like the zone hover it never reaches React, and it is mouse only. A zone
+ * inside the region does not interrupt it: the mouse is still in the region.
+ * The cursor is left alone, because a region cannot be clicked on the map.
  *
  * @param {import('ol/Map').default} map
  * @param {ReturnType<typeof import('./layers/regionsLayer').createRegionsLayer>} regions
+ * @param {object} handlers
+ * @param {(id: string|null) => void} handlers.onHover called only when the
+ *   hovered region changes; null: the mouse is over no region
  * @returns {() => void} detach
  */
-export function attachRegionHover(map, regions) {
+export function attachRegionHover(map, regions, { onHover }) {
   const viewport = map.getViewport();
   /** Last mouse position in CSS px, or null while the mouse is outside the map. */
   let mousePixel = null;
+  /** @type {string|null} */
+  let hoveredId = null;
+
+  const setHovered = (id) => {
+    if (id === hoveredId) return;
+    hoveredId = id;
+    onHover(id);
+  };
 
   const updateHover = () => {
     const coordinate = mousePixel ? map.getCoordinateFromPixel(mousePixel) : null;
-    regions.setHovered(coordinate ? regions.pickAt(coordinate) : null);
+    setHovered(coordinate ? regions.pickAt(coordinate) : null);
   };
 
   const handlePointerMove = (event) => {
@@ -185,6 +196,6 @@ export function attachRegionHover(map, regions) {
     map.un('pointermove', handlePointerMove);
     map.un('moveend', updateHover);
     viewport.removeEventListener('pointerleave', handlePointerLeave);
-    regions.setHovered(null);
+    setHovered(null);
   };
 }
