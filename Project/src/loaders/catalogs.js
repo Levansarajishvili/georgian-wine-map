@@ -4,6 +4,7 @@
 // Stage 6: grapes, plus the lists the filter works on.
 // Stage 7: regions, sources and the region → zones reverse index, for the
 // zone panel and the region list.
+// Stage 8: zones in the order of the region list, for keyboard use of the map.
 import grapeRecords from '../data/grapes.json';
 import regionRecords from '../data/regions.json';
 import sourceRecords from '../data/sources.json';
@@ -48,6 +49,18 @@ zoneRecords.forEach((zone) => {
   zone.regions.forEach((link) => zonesByRegionId.get(link.id)?.push(zone));
 });
 zonesByRegionId.forEach((list) => list.sort(byGeorgianName));
+
+/**
+ * Every zone once, in the order the region list shows them: regions by
+ * Georgian name, then each region's zones by Georgian name. A zone that
+ * crosses two regions keeps its first place. The keyboard walks the map in
+ * this order, so "next zone" means the same on the map and in the list.
+ *
+ * @type {object[]}
+ */
+export const zonesInListOrder = [
+  ...new Set(regions.flatMap((region) => zonesByRegionId.get(region.id))),
+];
 
 /**
  * Filter options in display order (domain/filterLogic.js takes this object):

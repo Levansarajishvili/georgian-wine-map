@@ -36,12 +36,27 @@ function getZoneStyles(zone) {
  * survives a reload. Each row carries data-zone-id, so the host can return
  * the focus to it when the zone panel closes.
  *
+ * Keyboard (stage 8). The list is the keyboard's way to the zones:
+ *   Tab             every row, as before
+ *   ↑ ↓ Home End    the previous / next / first / last row, regions and
+ *                   zones alike: a shortcut on top of Tab, not a replacement
+ *   Enter, Space    region: show on the map; zone: open its panel
+ * The zone whose row has the focus is highlighted on the map, like a hover,
+ * so a sighted keyboard user sees which zone the row means.
+ *
  * @param {object} props
  * @param {string|null} [props.selectedZoneId]
  * @param {(id: string) => void} [props.onSelectZone]
+ * @param {() => void} [props.onShowOnMap] after the map was fitted to a
+ *   region; the host can uncover the map (a full-height bottom sheet hides it)
  * @param {2|3|4} [props.headingLevel] level of the list title in the host's outline
  */
-export default function RegionList({ selectedZoneId = null, onSelectZone, headingLevel = 2 }) {
+export default function RegionList({
+  selectedZoneId = null,
+  onSelectZone,
+  onShowOnMap,
+  headingLevel = 2,
+}) {
   const { result } = useUrlFilters();
   const controllerRef = useContext(MapContext);
   const baseId = useId();
@@ -62,6 +77,37 @@ export default function RegionList({ selectedZoneId = null, onSelectZone, headin
     // Animated; without animation under prefers-reduced-motion (createMap.fitToExtent).
     controller.fitToBBox(region.bbox);
     setShownRegion(region);
+    onShowOnMap?.();
+  };
+
+  const highlightZone = (id) => {
+    controllerRef.current?.setHighlightedZone(id);
+  };
+
+  const handleSelectZone = (id) => {
+    // On desktop the row disappears with the list when the panel opens, and a
+    // removed element does not reliably fire blur: clear the highlight here.
+    highlightZone(null);
+    onSelectZone?.(id);
+  };
+
+  const handleListKeyDown = (event) => {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+
+    const rows = [...event.currentTarget.querySelectorAll('button')];
+    const index = rows.indexOf(event.target.closest('button'));
+    if (index === -1) return;
+
+    const target = {
+      ArrowDown: rows[index + 1],
+      ArrowUp: rows[index - 1],
+      Home: rows[0],
+      End: rows[rows.length - 1],
+    }[event.key];
+    // Also at the ends: the key belongs to the list, the page must not scroll.
+    event.preventDefault();
+    target?.focus();
   };
 
   return (
@@ -77,7 +123,7 @@ export default function RegionList({ selectedZoneId = null, onSelectZone, headin
         </p>
       </div>
 
-      <ul className={styles.regions}>
+      <ul className={styles.regions} onKeyDown={handleListKeyDown}>
         {regions.map((region) => {
           const regionZones = zonesByRegionId.get(region.id) ?? [];
 
@@ -128,7 +174,9 @@ export default function RegionList({ selectedZoneId = null, onSelectZone, headin
                           className={dimmed ? `${styles.zone} ${styles.zoneDimmed}` : styles.zone}
                           aria-current={zone.id === selectedZoneId ? 'true' : undefined}
                           data-zone-id={zone.id}
-                          onClick={() => onSelectZone?.(zone.id)}
+                          onClick={() => handleSelectZone(zone.id)}
+                          onFocus={() => highlightZone(zone.id)}
+                          onBlur={() => highlightZone(null)}
                         >
                           <span className={styles.zoneText}>
                             <span>{zone.name.ka}</span>

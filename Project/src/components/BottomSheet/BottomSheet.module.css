@@ -1,0 +1,220 @@
+/* src/components/BottomSheet/BottomSheet.module.css
+   Every value is a token from styles/tokens.css.
+
+   Mobile first: a sheet at the bottom of the screen with three heights.
+   Desktop and landscape phones (the @media block at the end): the same
+   <aside> is the side panel; the grip disappears and the states do nothing.
+
+   Where the sheet sits in the page (grid cell, z-index) is the host's
+   business: it passes a class for that (App.module.css, .panel). */
+
+.sheet {
+  /* Full: the sheet stops below the top bar. Derived from tokens, used here
+     and by the height probe in BottomSheet.jsx. */
+  --sheet-height-full: calc(100dvh - var(--sheet-top-offset));
+
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: var(--sheet-height-collapsed);
+  max-height: var(--sheet-height-full);
+  background: var(--color-surface);
+  color: var(--color-text);
+  /* Forced-colours mode drops the shadow; a transparent border is drawn
+     there, so the sheet's edge against the map stays visible. */
+  border-top: var(--border-width) solid transparent;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  box-shadow: var(--shadow-sheet);
+  /* --motion-duration-sheet drops to 1ms under prefers-reduced-motion
+     (tokens.css): the sheet then changes height without sliding. */
+  transition: height var(--motion-duration-sheet) var(--motion-ease-sheet);
+}
+
+.sheet[data-snap="half"] {
+  height: var(--sheet-height-half);
+}
+
+.sheet[data-snap="full"] {
+  height: var(--sheet-height-full);
+}
+
+/* While dragging the sheet follows the finger: the height comes from
+   BottomSheet.jsx on every pointer move, with no transition in between. */
+.sheet[data-dragging] {
+  height: var(--sheet-drag-height, var(--sheet-height-collapsed));
+  transition: none;
+}
+
+/* The <aside> takes the focus only as a last resort (tabIndex -1). An outer
+   ring would be cut off by the screen edge, so the ring is drawn inside. */
+.sheet:focus-visible {
+  box-shadow: var(--focus-ring-inset);
+}
+
+/* Holds the app title. On mobile the title is visually hidden by the host,
+   so this box takes no room there. */
+.header {
+  flex: none;
+}
+
+/* ---------------------------------------------------------------
+ * Grip: the handle, and under it the one line of the collapsed sheet
+ * ------------------------------------------------------------- */
+.grip {
+  flex: none;
+  cursor: grab;
+  /* The drag belongs to the sheet: no browser scrolling, no pull-to-refresh. */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.sheet[data-dragging] .grip {
+  cursor: grabbing;
+}
+
+.handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: var(--size-sheet-handle-zone);
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  cursor: inherit;
+  touch-action: none;
+}
+
+.handle:focus-visible {
+  box-shadow: var(--focus-ring-inset);
+}
+
+.handleBar {
+  box-sizing: border-box;
+  width: var(--space-6);
+  height: var(--space-1);
+  background: var(--color-border);
+  /* Forced-colours mode drops backgrounds; a transparent border is drawn
+     there in the text colour, so the bar stays visible. */
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-pill);
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+/* Only where hovering exists: after a tap, touch screens keep :hover on. */
+@media (hover: hover) {
+  .handle:hover .handleBar {
+    background: var(--color-border-strong);
+  }
+}
+
+.sheet[data-dragging] .handleBar {
+  background: var(--color-text);
+}
+
+/* Shown only while collapsed: what is in the sheet, in one line. */
+.peek {
+  display: none;
+}
+
+.sheet[data-snap="collapsed"]:not([data-dragging]) .peek {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  height: calc(var(--sheet-height-collapsed) - var(--size-sheet-handle-zone));
+  margin: 0;
+  padding: 0 var(--space-panel-inset);
+  overflow: hidden;
+  line-height: var(--line-height-ui);
+  white-space: nowrap;
+}
+
+.peekTitle {
+  flex: none;
+  max-width: 100%;
+  overflow: hidden;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  text-overflow: ellipsis;
+}
+
+.peekNote {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  text-overflow: ellipsis;
+}
+
+/* ---------------------------------------------------------------
+ * Content: scrolls inside the sheet
+ * ------------------------------------------------------------- */
+.body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-height: 0;
+  /* The top padding leaves room for the focus ring of the first element:
+     a scrolling box cuts off whatever is drawn outside it. */
+  padding: var(--space-1) var(--space-panel-inset) var(--space-panel-inset);
+  overflow-y: auto;
+  /* The end of the list must not hand the scroll over to the page. */
+  overscroll-behavior: contain;
+}
+
+/* Sections keep their height; the body scrolls instead of squeezing them. */
+.body > * {
+  flex: none;
+}
+
+/* Collapsed: out of sight and out of the tab order (the `inert` attribute
+   covers the moment before this applies). Hidden only after the sheet has
+   finished closing, so the content does not vanish ahead of the movement. */
+.sheet[data-snap="collapsed"]:not([data-dragging]) .body {
+  visibility: hidden;
+  transition: visibility 0s linear var(--motion-duration-sheet);
+}
+
+/* ---------------------------------------------------------------
+ * Desktop (--breakpoint-desktop) and landscape phones: side panel
+ * ------------------------------------------------------------- */
+@media (min-width: 48rem), (orientation: landscape) and (max-height: 30rem) {
+  .sheet[data-snap] {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    padding: var(--space-panel-inset);
+    overflow: auto;
+    border-top: 0;
+    border-right: var(--border-width) solid var(--color-border-subtle);
+    border-radius: 0;
+    box-shadow: none;
+    transition: none;
+  }
+
+  .sheet[data-snap]:focus-visible {
+    box-shadow: var(--focus-ring-inset);
+  }
+
+  .header {
+    margin-bottom: var(--space-5);
+  }
+
+  .grip {
+    display: none;
+  }
+
+  .body,
+  .sheet[data-snap="collapsed"]:not([data-dragging]) .body {
+    flex: none;
+    padding: 0;
+    overflow: visible;
+    visibility: visible;
+    transition: none;
+  }
+}

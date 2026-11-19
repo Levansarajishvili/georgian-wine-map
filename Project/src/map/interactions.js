@@ -17,15 +17,27 @@ function getTolerance(event) {
  * - hover is handled here and never reaches React: it only changes the layer's
  *   style state and the cursor. Mouse only: touch has no hover.
  *
+ * Stage 8: the same highlight (outline + label that is always visible) also
+ * marks the zone a keyboard user has reached, in the region list or on the
+ * map. That zone comes from outside through `getHighlightedId` and wins over
+ * the mouse: it was chosen on purpose, the mouse may just be resting there.
+ * The cursor still follows the mouse only.
+ *
  * @param {import('ol/Map').default} map
  * @param {ReturnType<typeof import('./layers/zonesLayer').createZonesLayer>} zones
- * @param {{ onZoneClick: (id: string|null) => void }} handlers
- * @returns {() => void} detach
+ * @param {object} handlers
+ * @param {(id: string|null) => void} handlers.onZoneClick
+ * @param {() => string|null} [handlers.getHighlightedId] zone to highlight
+ *   whatever the mouse does; read on every refresh
+ * @returns {{ detach: () => void, refreshHover: () => void }} call
+ *   refreshHover() after the value behind getHighlightedId has changed
  */
-export function attachZoneInteractions(map, zones, { onZoneClick }) {
+export function attachZoneInteractions(map, zones, { onZoneClick, getHighlightedId = () => null }) {
   const viewport = map.getViewport();
   /** Last mouse position in CSS px, or null while the mouse is outside the map. */
   let mousePixel = null;
+  /** Zone under the mouse, or null. */
+  let mouseZoneId = null;
 
   const pick = (coordinate, tolerancePx) => {
     const resolution = map.getView().getResolution();
@@ -33,12 +45,16 @@ export function attachZoneInteractions(map, zones, { onZoneClick }) {
     return zones.pickAt(coordinate, resolution, tolerancePx)[0] ?? null;
   };
 
-  const setHovered = (id) => {
-    if (zones.setHovered(id)) viewport.style.cursor = id ? 'pointer' : '';
+  const applyHover = () => {
+    zones.setHovered(getHighlightedId() ?? mouseZoneId);
+    viewport.style.cursor = mouseZoneId ? 'pointer' : '';
   };
 
   const updateHover = () => {
-    setHovered(mousePixel ? pick(map.getCoordinateFromPixel(mousePixel), TOLERANCE_PX.mouse) : null);
+    mouseZoneId = mousePixel
+      ? pick(map.getCoordinateFromPixel(mousePixel), TOLERANCE_PX.mouse)
+      : null;
+    applyHover();
   };
 
   const handleClick = (event) => {
@@ -54,7 +70,7 @@ export function attachZoneInteractions(map, zones, { onZoneClick }) {
 
   const handlePointerLeave = () => {
     mousePixel = null;
-    setHovered(null);
+    updateHover();
   };
 
   map.on('singleclick', handleClick);
@@ -63,11 +79,14 @@ export function attachZoneInteractions(map, zones, { onZoneClick }) {
   map.on('moveend', updateHover);
   viewport.addEventListener('pointerleave', handlePointerLeave);
 
-  return () => {
-    map.un('singleclick', handleClick);
-    map.un('pointermove', handlePointerMove);
-    map.un('moveend', updateHover);
-    viewport.removeEventListener('pointerleave', handlePointerLeave);
-    viewport.style.cursor = '';
+  return {
+    detach() {
+      map.un('singleclick', handleClick);
+      map.un('pointermove', handlePointerMove);
+      map.un('moveend', updateHover);
+      viewport.removeEventListener('pointerleave', handlePointerLeave);
+      viewport.style.cursor = '';
+    },
+    refreshHover: applyHover,
   };
 }

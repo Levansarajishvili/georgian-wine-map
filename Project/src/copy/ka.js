@@ -2,6 +2,7 @@
 // Every UI string lives here (04-copy-voice.md).
 // Stages 4–5: map and layout strings. Stage 6: filter panel.
 // Stage 7: term explanations, zone panel, region list.
+// Stage 8: bottom sheet, filter button, keyboard use of the map.
 
 // One sentence per term (04 §3): reused wherever the term first appears.
 const QVEVRI = 'ქვევრი მიწაში ჩაფლული თიხის დიდი ჭურჭელია, რომელშიც ღვინო დუღს და ინახება.';
@@ -48,6 +49,23 @@ export const ka = {
     showOnMap: 'რუკაზე ჩვენება',
     // Announced after the map has moved (role="status").
     shownOnMap: (name) => `რუკა აჩვენებს: ${name}`,
+    // The map as one keyboard stop (stage 8). Key names stay as printed on the keys.
+    keyboard: {
+      // Name of the focusable map; the landmark around it is `map.label`.
+      label: 'ინტერაქტიული რუკა',
+      // Shown while the map has keyboard focus, and its description for screen readers.
+      help: 'ისრები რუკას გადაადგილებს, + და − მასშტაბს ცვლის. Page Down და Page Up შემდეგ და წინა ზონაზე გადადის, Enter ზონის აღწერას ხსნის.',
+      // Announced when Page Down / Page Up moves to a zone: "ნაფარეული, კახეთი. ზონა 1, სულ 2."
+      zone: ({ name, regions, index, total }) =>
+        `${[name, regions].filter(Boolean).join(', ')}. ზონა ${index}, სულ ${total}.`,
+      noZones: 'რუკაზე ზონა ჯერ არ არის.',
+    },
+  },
+  // Bottom sheet handle (mobile): the label says what pressing it does now.
+  sheet: {
+    expand: 'გაშლა',
+    expandFull: 'სრულად გაშლა',
+    collapse: 'ჩაკეცვა',
   },
   basemap: {
     button: 'საბაზისო რუკა',
@@ -60,6 +78,10 @@ export const ka = {
   filter: {
     title: 'ფილტრი',
     clear: 'გასუფთავება',
+    // Mobile: closes the filter and brings the region list back.
+    close: 'დახურვა',
+    // Mobile button over the map that opens the filter in the bottom sheet.
+    button: (activeCount) => (activeCount > 0 ? `ფილტრი, აქტიურია ${activeCount}` : 'ფილტრი'),
     groups: {
       style: 'ღვინის სტილი',
       grape: 'ვაზის ჯიში',
@@ -89,6 +111,15 @@ export const ka = {
       all: (total) => `ნაჩვენებია ყველა ზონა: ${total}`,
       some: (count, total) => `ფილტრს შეესაბამება ${count} ზონა ${total}-დან`,
       none: 'ფილტრს არცერთი ზონა არ შეესაბამება.',
+    },
+    /**
+     * The one sentence about the filter's result: the visible line in the
+     * filter panel, the collapsed bottom sheet and the app's live region.
+     * @param {{ active: boolean, count: number, total: number }} state
+     */
+    summaryOf: ({ active, count, total }) => {
+      if (!active) return ka.filter.summary.all(total);
+      return count === 0 ? ka.filter.summary.none : ka.filter.summary.some(count, total);
     },
   },
   // Explanations for readers who do not know wine vocabulary: one sentence

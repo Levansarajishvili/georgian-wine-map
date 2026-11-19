@@ -106,16 +106,24 @@ function Chip({ option, describedBy, onToggle, children }) {
  *
  * Container-independent on purpose: the root takes the width it is given, has
  * no position, height or scrolling of its own, and wraps its chips. The same
- * component goes into the desktop side panel now and into the mobile bottom
- * sheet later; scrolling and the sticky parts belong to the container.
+ * component goes into the desktop side panel and into the mobile bottom
+ * sheet (stage 8); scrolling belongs to the container. So do opening,
+ * closing and the focus: the container passes `onClose` where the panel can
+ * be closed (mobile) and may focus the title through `headingRef`.
  *
  * State: the filter itself is in the URL (useUrlFilters). The only local state
  * is the search text, which is not part of a shared link.
  *
+ * The result line here is plain text. Its announcement to screen readers is
+ * the app's live region (App.jsx): that one exists whatever panel is open,
+ * and a second role="status" here would say every change twice.
+ *
  * @param {object} props
  * @param {2|3|4} [props.headingLevel] level of the panel title in the host's outline
+ * @param {{ current: HTMLElement|null }} [props.headingRef] the title; it has tabIndex -1
+ * @param {() => void} [props.onClose] shows a close button when given
  */
-export default function FilterPanel({ headingLevel = 2 }) {
+export default function FilterPanel({ headingLevel = 2, headingRef, onClose }) {
   const { filter, result, toggle, clear } = useUrlFilters();
   const [query, setQuery] = useState('');
   const searchRef = useRef(null);
@@ -161,13 +169,11 @@ export default function FilterPanel({ headingLevel = 2 }) {
       .map((option) => ({ ...option, dimension })),
   );
 
-  let summary = ka.filter.summary.all(result.totalCount);
-  if (hasFilter) {
-    summary =
-      result.matchCount === 0
-        ? ka.filter.summary.none
-        : ka.filter.summary.some(result.matchCount, result.totalCount);
-  }
+  const summary = ka.filter.summaryOf({
+    active: hasFilter,
+    count: result.matchCount,
+    total: result.totalCount,
+  });
 
   let searchStatus = '';
   if (hasQuery) {
@@ -182,26 +188,46 @@ export default function FilterPanel({ headingLevel = 2 }) {
   return (
     <section className={styles.root} aria-labelledby={titleId}>
       <div className={styles.header}>
-        <Heading id={titleId} className={styles.title}>
+        <Heading id={titleId} ref={headingRef} tabIndex={-1} className={styles.title}>
           {ka.filter.title}
         </Heading>
-        {/* aria-disabled, not disabled: after "clear" the focus stays on the button. */}
-        <button
-          type="button"
-          className={styles.clear}
-          aria-disabled={!hasFilter}
-          onClick={() => {
-            if (hasFilter) clear();
-          }}
-        >
-          {ka.filter.clear}
-        </button>
+        <div className={styles.actions}>
+          {/* aria-disabled, not disabled: after "clear" the focus stays on the button. */}
+          <button
+            type="button"
+            className={styles.clear}
+            aria-disabled={!hasFilter}
+            onClick={() => {
+              if (hasFilter) clear();
+            }}
+          >
+            {ka.filter.clear}
+          </button>
+          {onClose && (
+            <button
+              type="button"
+              className={styles.close}
+              aria-label={ka.filter.close}
+              onClick={onClose}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Zones on the map change without a page load; this line says what happened. */}
-      <p className={styles.summary} role="status">
-        {summary}
-      </p>
+      {/* What the filter did to the map, for the eye; announced by App's live region. */}
+      <p className={styles.summary}>{summary}</p>
 
       <div className={styles.searchBlock}>
         <div className={styles.search}>

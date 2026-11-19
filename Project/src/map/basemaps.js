@@ -80,7 +80,7 @@ function buildUrlOptions(basemap) {
   };
 }
 
-function createSource(basemap) {
+function createSource(basemap, fadeIn) {
   if (!isConfigured(basemap)) {
     if (import.meta.env.DEV) {
       console.warn(`[basemaps] "${basemap.id}" has no XYZ url yet: fill it in src/map/basemaps.js.`);
@@ -91,6 +91,8 @@ function createSource(basemap) {
     ...buildUrlOptions(basemap),
     attributions: basemap.attribution,
     ...(basemap.maxZoom ? { maxZoom: basemap.maxZoom } : {}),
+    // OpenLayers fades every new tile in; 0 draws it at once.
+    ...(fadeIn ? {} : { transition: 0 }),
   });
 }
 
@@ -100,14 +102,17 @@ function createSource(basemap) {
  * never recreated.
  *
  * @param {string} activeId
+ * @param {object} [options]
+ * @param {boolean} [options.fadeIn] default true; false under
+ *   prefers-reduced-motion (createMap.js): tiles appear without the fade
  * @returns {Map<string, import('ol/layer/Tile').default>}
  */
-export function createBasemapLayers(activeId = DEFAULT_BASEMAP_ID) {
+export function createBasemapLayers(activeId = DEFAULT_BASEMAP_ID, { fadeIn = true } = {}) {
   return new Map(
     BASEMAPS.map((basemap) => [
       basemap.id,
       new TileLayer({
-        source: createSource(basemap),
+        source: createSource(basemap, fadeIn),
         visible: basemap.id === activeId,
         properties: { basemapId: basemap.id },
       }),

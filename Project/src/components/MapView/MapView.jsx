@@ -1,6 +1,7 @@
 // src/components/MapView/MapView.jsx
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useId, useRef, useState } from 'react';
 import { ka } from '../../copy/ka';
+import { regionsById, zonesInListOrder } from '../../loaders/catalogs';
 import { loadRegionGeometry, loadZoneGeometry } from '../../loaders/geometry';
 import { DEFAULT_BASEMAP_ID } from '../../map/basemaps';
 import { createMap } from '../../map/createMap';
@@ -31,8 +32,27 @@ function readPadding(element) {
  *
  * The selected zone is owned by whoever renders the zone panel (App, through
  * useZoneSelection); MapView only connects the filter and the geometry.
+ *
+ * Keyboard (stage 8). The canvas has nothing a keyboard can reach inside it,
+ * so the map container itself is one tab stop:
+ *
+ *   arrows, + and −       pan and zoom (OpenLayers' own keyboard interactions;
+ *                         they listen on the focused container)
+ *   Page Down / Page Up   next / previous zone, in the order of the region
+ *                         list; the zone is highlighted, brought on screen if
+ *                         it is not there, and announced (role="status")
+ *   Enter                 opens that zone's panel (onOpenZone)
+ *   Escape                removes the highlight
+ *
+ * role="application": a screen reader then passes these keys through instead
+ * of using them for its own reading commands. The region list remains the
+ * full equivalent for anyone who does not use the map at all (01 §1).
+ *
+ * @param {object} props
+ * @param {(id: string) => void} [props.onOpenZone] Enter on a zone reached
+ *   with the keyboard; the host opens the zone panel and moves the focus
  */
-export default function MapView() {
+export default function MapView({ onOpenZone }) {
   const targetRef = useRef(null);
   const overlayRef = useRef(null);
   const zoomRef = useRef(null);
@@ -47,6 +67,12 @@ export default function MapView() {
 
   // Filter from the URL; `result` keeps its identity until the filter changes.
   const { result: filterResult } = useUrlFilters();
+
+  // Zone the keyboard has stepped to; kept while the focus is elsewhere, so
+  // Page Down continues from it when the focus comes back.
+  const [cursorId, setCursorId] = useState(null);
+  const [cursorStatus, setCursorStatus] = useState('');
+  const helpId = useId();
 
   // Create the map once. StrictMode runs mount → cleanup → mount in dev:
   // cleanup destroys the first instance, so only one map exists at a time.
@@ -134,14 +160,100 @@ export default function MapView() {
     setAttempt((count) => count + 1);
   };
 
+  const moveCursor = (step) => {
+    const controller = controllerRef.current;
+    if (!controller) return;
+    const total = zonesInListOrder.length;
+    if (total === 0) {
+      setCursorStatus(ka.map.keyboard.noZones);
+      return;
+    }
+
+    const current = zonesInListOrder.findIndex((zone) => zone.id === cursorId);
+    let index = (current + step + total) % total;
+    if (current === -1) index = step > 0 ? 0 : total - 1;
+    const zone = zonesInListOrder[index];
+
+    setCursorId(zone.id);
+    controller.setHighlightedZone(zone.id);
+    // Moves the map only when the zone is not fully on screen; animated,
+    // and without animation under prefers-reduced-motion (createMap).
+    controller.revealBBox(zone.bbox);
+
+    const { matchingIds } = filterResult;
+    const status = ka.map.keyboard.zone({
+      name: zone.name.ka,
+      regions: zone.regions
+        .map((link) => regionsById.get(link.id)?.name.ka)
+        .filter(Boolean)
+        .join(', '),
+      index: index + 1,
+      total,
+    });
+    setCursorStatus(
+      matchingIds !== null && !matchingIds.has(zone.id)
+        ? `${status} ${ka.regionList.dimmed}.`
+        : status,
+    );
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+
+    if (event.key === 'PageDown' || event.key === 'PageUp') {
+      event.preventDefault();
+      moveCursor(event.key === 'PageDown' ? 1 : -1);
+    } else if (event.key === 'Enter' && cursorId) {
+      event.preventDefault();
+      onOpenZone?.(cursorId);
+    } else if (event.key === 'Escape' && cursorId) {
+      setCursorId(null);
+      setCursorStatus('');
+      controllerRef.current?.setHighlightedZone(null);
+    }
+  };
+
+  // Coming back with the keyboard (Tab, or the zone panel closing) shows the
+  // zone the keys will continue from. A mouse click on the map does not.
+  const handleFocus = (event) => {
+    if (cursorId && event.target.matches(':focus-visible')) {
+      controllerRef.current?.setHighlightedZone(cursorId);
+    }
+  };
+
+  const handleBlur = () => {
+    controllerRef.current?.setHighlightedZone(null);
+  };
+
   const hasError = regionsStatus === 'error' || zonesStatus === 'error';
   const isLoading = !hasError && (regionsStatus === 'loading' || zonesStatus === 'loading');
 
   return (
     <div className={styles.root}>
-      <div ref={targetRef} className={styles.canvas} />
+      {/* OpenLayers renders into this element and listens for keys on it. */}
+      <div
+        ref={targetRef}
+        className={styles.canvas}
+        tabIndex={0}
+        role="application"
+        aria-label={ka.map.keyboard.label}
+        aria-describedby={helpId}
+        onKeyDown={handleKeyDown}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+      />
 
       <div ref={overlayRef} className={styles.overlay}>
+        {/* Visible only while the map has keyboard focus (CSS); always the
+            map's description for screen readers. */}
+        <p id={helpId} className={styles.keyboardHelp}>
+          {ka.map.keyboard.help}
+        </p>
+        {/* The highlight moves on the canvas only; this line says where it is. */}
+        <p className={styles.visuallyHidden} role="status">
+          {cursorStatus}
+        </p>
+
         <div className={styles.controls}>
           <BasemapSwitcher />
           {/* OpenLayers renders the zoom buttons into this element. */}

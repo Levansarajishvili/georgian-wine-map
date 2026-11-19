@@ -133,9 +133,9 @@ function UnverifiedTag() {
  *
  * Container-independent on purpose, like FilterPanel: the root takes the
  * width it is given and has no position, height or scrolling of its own.
- * It goes into the desktop side panel now and into the mobile bottom sheet
- * later (stage 8). Opening, closing and focus on open belong to the
- * container: it passes `onClose` and may focus the title through `headingRef`.
+ * It goes into the desktop side panel and into the mobile bottom sheet
+ * (stage 8). Opening, closing and focus on open belong to the container:
+ * it passes `onClose` and may focus the title through `headingRef`.
  *
  * Reads: the filter from the URL (useUrlFilters) and the map controller
  * (MapContext). Shows nothing for an unknown zone id.
@@ -143,10 +143,12 @@ function UnverifiedTag() {
  * @param {object} props
  * @param {string} props.zoneId zones.json id
  * @param {() => void} props.onClose
+ * @param {() => void} [props.onShowOnMap] after the map was fitted to the
+ *   zone; the host can uncover the map (a full-height bottom sheet hides it)
  * @param {{ current: HTMLElement|null }} [props.headingRef] the title; it has tabIndex -1
  * @param {2|3|4} [props.headingLevel] level of the zone name in the host's outline
  */
-export default function ZonePanel({ zoneId, onClose, headingRef, headingLevel = 2 }) {
+export default function ZonePanel({ zoneId, onClose, onShowOnMap, headingRef, headingLevel = 2 }) {
   const { filter, setOnly, hrefForOnly } = useUrlFilters();
   const controllerRef = useContext(MapContext);
   const rootRef = useRef(null);
@@ -205,6 +207,7 @@ export default function ZonePanel({ zoneId, onClose, headingRef, headingLevel = 
     // Animated; without animation under prefers-reduced-motion (createMap.fitToExtent).
     controller.fitToBBox(zone.bbox);
     setShownZoneId(zone.id);
+    onShowOnMap?.();
   };
 
   const handleGrapeClick = (event, id) => {
